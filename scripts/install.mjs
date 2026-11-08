@@ -301,6 +301,17 @@ export function main(argv = process.argv.slice(2), env = process.env) {
   return installer.status;
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+// Node resolves symbolic links in the main module's URL but not in argv[1],
+// so compare real paths: a checkout reached through a link must still run.
+function invokedDirectly() {
+  if (!process.argv[1]) return false;
+  try {
+    return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+}
+
+if (invokedDirectly()) {
   process.exitCode = main();
 }

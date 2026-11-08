@@ -5,6 +5,14 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [1.0.1] - 2026-11-08
+
+### Fixed
+
+- `scripts/install.sh` did nothing, silently and with exit code 0, when the
+  repository was reached through a symbolic link. The installer now compares
+  real paths to decide that it was run directly.
+
 ## [1.0.0] - 2026-11-06
 
 ### Added
