@@ -23,7 +23,11 @@ function skill(root, name, body = 'Test skill.') {
 }
 
 function run(home, ...args) {
-  return spawnSync('/bin/bash', [installer, ...args], {
+  return runWith(installer, home, ...args);
+}
+
+function runWith(script, home, ...args) {
+  return spawnSync('/bin/bash', [script, ...args], {
     env: { ...process.env, HOME: home, CODEX_HOME: join(home, '.codex'), XDG_CACHE_HOME: join(home, '.cache') },
     encoding: 'utf8',
     timeout: 30000,
@@ -38,6 +42,16 @@ test('default sources link every skill of this repository for every harness dire
     assert.equal(readlinkSync(join(home, directory, 'retro')), join(repository, 'skills/retro'));
   }
   assert.equal(run(home, '--claude', '--agents').stdout.includes('Linked'), false, 'second run must be a no-op');
+});
+
+test('the installer runs when the repository is reached through a symbolic link', (t) => {
+  const home = workspace(t);
+  const link = join(home, 'linked-skills');
+  symlinkSync(repository, link);
+  const result = runWith(join(link, 'scripts/install.sh'), home, '--agents');
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Linked/);
+  assert.ok(existsSync(join(home, '.agents/skills/retro')));
 });
 
 test('a sources file combines repositories and refuses name clashes before changing anything', (t) => {
