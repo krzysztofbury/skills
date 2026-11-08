@@ -49,6 +49,10 @@ OpenCode, and similar). `scripts/install.sh` generates `CLAUDE.md` /
 - Write the full output of a costly or non-repeatable command (calls against
   a live budget, release runs) to a scratch file before filtering it; output
   trimmed with `tail` can force a second run.
+- Stage commits by explicit path, never with `git add -A`, `git add .` or
+  `git commit -a`, and read `git status` before each commit. A changed file
+  you did not edit (a lockfile or config a tool rewrote) goes into no commit
+  until the user decides about it.
 
 ## Scratch Space & Cleanup
 

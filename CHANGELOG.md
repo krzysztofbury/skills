@@ -5,6 +5,16 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [1.1.0] - 2026-11-08
+
+### Added
+
+- `scripts/install.sh --claude-rules-file AGENTS.md` writes the Claude Code
+  rules to `~/.claude/AGENTS.md` and retires a generated
+  `~/.claude/CLAUDE.md`. See `docs/INSTALL.md` for where Claude Code loads it.
+- Base rules: stage commits by explicit path and read `git status` first, so
+  a file a tool rewrote never lands in a commit unnoticed.
+
 ## [1.0.1] - 2026-11-08
 
 ### Fixed
