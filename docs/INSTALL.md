@@ -19,11 +19,26 @@ Requires Node.js 20 or newer and `git` for git sources.
 
 | Target | Skills | Hooks | Rules |
 | --- | --- | --- | --- |
-| `--claude` | `~/.claude/skills/` | `~/.claude/hooks/*.sh`, merged into `~/.claude/settings.json`; `~/.claude/statusline-command.sh` | `~/.claude/CLAUDE.md` |
+| `--claude` | `~/.claude/skills/` | `~/.claude/hooks/*.sh`, merged into `~/.claude/settings.json`; `~/.claude/statusline-command.sh` | `~/.claude/CLAUDE.md`, or `~/.claude/AGENTS.md` with `--claude-rules-file AGENTS.md` |
 | `--agents` | `~/.agents/skills/` | none | `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md` |
 | `--codex` | as `--agents` | `$CODEX_HOME/hooks/auto-lint.mjs`, merged into `$CODEX_HOME/hooks.json` | as `--agents` |
 
 Every target also links `~/.local/bin/agent-scratch`.
+
+### Claude Code rules in AGENTS.md
+
+`--claude-rules-file AGENTS.md` writes the Claude Code rules to
+`~/.claude/AGENTS.md` instead of `~/.claude/CLAUDE.md`, and removes a
+`~/.claude/CLAUDE.md` that the installer generated earlier (a hand-written one
+is kept). Rerunning without the option switches back the same way.
+
+Claude Code has no user-level `AGENTS.md`. It reads `~/.claude/AGENTS.md`
+because it loads every `.claude/AGENTS.md` in the working directory and the
+directories above it, and the home directory is above most projects. So the
+rules load only in sessions that start under the home directory, and not in a
+project that has a `CLAUDE.md`, `.claude/CLAUDE.md` or `CLAUDE.local.md` in or
+above its working directory: Claude Code then reads those instead of any
+`AGENTS.md`. Keep the default `CLAUDE.md` when that matters.
 
 The hook merge only adds missing entries. It keeps existing hooks, timeouts and
 unrelated settings, writes a timestamped backup before changing the file, and
