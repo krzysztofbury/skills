@@ -5,6 +5,13 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [2.1.0] - 2026-11-09
+
+### Added
+
+- Base rules: do not run a command stored in a plain shell variable
+  (`$CMD args`); zsh does not word-split it. Use a shell function or an array.
+
 ## [2.0.1] - 2026-11-09
 
 ### Fixed
