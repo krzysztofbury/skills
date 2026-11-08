@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const root = mkdtempSync(join(tmpdir(), 'opencode-skills-'));
-const ids = ['article-curator', 'ubiquiti-advisor'];
+const ids = ['clipping-curator', 'ubiquiti-advisor'];
 let child;
 let interrupted = false;
 let closed;

@@ -1,5 +1,5 @@
 ---
-name: article-curator
+name: clipping-curator
 description: Reviews web clippings saved as Markdown and turns the useful ones into concise, reusable notes, checklists or protocols, trashing the noise. Use when the user asks to process, triage or curate clipped articles in a notes folder.
 compatibility: Works on a local folder of Markdown files. Folders, note format, language and tags are configurable.
 disable-model-invocation: true
@@ -7,7 +7,7 @@ metadata:
   opencode/autoinvoke: false
 ---
 
-# Article Curator
+# Clipping Curator
 
 Act as a personal knowledge manager. Filter a high volume of clipped articles
 and turn the useful ones into concise knowledge, processes, checklists or
@@ -17,9 +17,11 @@ knowledge.
 ## Configuration
 
 Settings come from the first source found: a config path the user names,
-`$ARTICLE_CURATOR_CONFIG`, `.article-curator.json` in the current directory,
-`~/.config/article-curator/config.json` (or under `$XDG_CONFIG_HOME`), then
-the defaults below. See `config.example.json`. Relative paths resolve against
+`$CLIPPING_CURATOR_CONFIG`, `.clipping-curator.json` in the current directory,
+`~/.config/clipping-curator/config.json` (or under `$XDG_CONFIG_HOME`), the
+same three locations under the skill's former name `article-curator`
+(`$ARTICLE_CURATOR_CONFIG`, `.article-curator.json`,
+`~/.config/article-curator/config.json`), then the defaults below. See `config.example.json`. Relative paths resolve against
 `root`. When no config file exists, show the defaults once and confirm them
 before the first write.
 

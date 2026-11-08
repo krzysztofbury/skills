@@ -1,7 +1,7 @@
 ---
 name: plausible-insights
 description: Analyze website traffic, content performance and conversions with Plausible Analytics. Use when investigating traffic, landing pages, acquisition, engagement, SEO or conversion changes; inspects real pages and separates facts from hypotheses.
-compatibility: Requires authorized access to the Plausible Stats API v2 (plausible.io or self-hosted), curl and jq, or an equivalent analytics adapter.
+compatibility: Requires authorized access to the Plausible Stats API v2 (plausible.io or self-hosted) through a connected Plausible MCP server, or curl and jq.
 ---
 
 # Plausible Insights
@@ -22,6 +22,19 @@ variables, then `~/.config/plausible-insights/config.json`.
 | Site ID (the domain as registered in Plausible) | `PLAUSIBLE_SITE_ID` | `site_id` | none: ask the user |
 | API base URL (self-hosted instances) | `PLAUSIBLE_API_URL` | `api_url` | `https://plausible.io` |
 | API key | `PLAUSIBLE_API_KEY` | not allowed | none: stop and ask |
+| MCP server name | `PLAUSIBLE_MCP_SERVER` | `mcp_server` | none: use the API |
+| Force a data source | `PLAUSIBLE_SOURCE` | `source` | `mcp` when a server is set and reachable, else `api` |
+
+**MCP server.** Plausible publishes no MCP server of its own; its docs point
+to the community `getsentry/plausible-mcp` (read-only, local stdio or a
+hosted endpoint). When `PLAUSIBLE_MCP_SERVER` names a connected server, find
+its tools in the harness tool catalog (tool name prefixes differ between
+harnesses; search for the server name plus "plausible" where a tool search
+exists) and use only read tools. It needs no `PLAUSIBLE_API_KEY` in the
+agent's environment, because the server holds the key. If the server is
+missing, fails or lacks a query this analysis needs, say so and fall back
+to the API below. A hosted endpoint sends the Stats API key to its operator;
+prefer a local server for sites whose data must not leave the machine.
 
 ```json
 { "site_id": "example.com", "api_url": "https://plausible.io" }
@@ -52,8 +65,9 @@ export PLAUSIBLE_SITE_ID PLAUSIBLE_API_URL
 2. Check tracking coverage, consent and ad-blocking limitations, imported-data
    coverage and sample size before interpreting a change.
 3. Query the smallest set of compatible metrics and dimensions that answers the
-   question. Build the payload with JSON escaping rather than interpolating
-   values into JSON by hand:
+   question. Through an MCP server, pass the same metrics, dimensions, filters
+   and date range to its query tool. Through the API, build the payload with
+   JSON escaping rather than interpolating values into JSON by hand:
 
    ```bash
    jq -cn '{site_id: env.PLAUSIBLE_SITE_ID,
