@@ -1,6 +1,6 @@
 ---
 name: plausible-insights
-description: Analyze website traffic, content performance and conversions with Plausible Analytics. Use when investigating traffic, landing pages, acquisition, engagement, SEO or conversion changes; inspects real pages and separates facts from hypotheses.
+description: Analyze website traffic, content performance and conversions with Plausible Analytics. Use when pulling, reporting or interpreting Plausible stats (live, or pasted Stats API responses and exports), or investigating traffic, landing pages, acquisition, engagement, SEO or conversion changes; inspects real pages and separates facts from hypotheses.
 compatibility: Requires authorized access to the Plausible Stats API v2 (plausible.io or self-hosted) through a connected Plausible MCP server, or curl and jq.
 ---
 
@@ -46,6 +46,9 @@ prefer a local server for sites whose data must not leave the machine.
   never from the config file, chat or a command line you print. If it is
   missing, ask the user to export it; never ask them to paste it into chat.
 - Never print the key or an Authorization header.
+- If a key appears in chat, a config file or pasted output, do not use it and
+  never repeat any part of it. Tell the user it is exposed, to revoke or rotate
+  it in Plausible, and to export the new one as `PLAUSIBLE_API_KEY`.
 
 Load non-secret settings without echoing the key:
 

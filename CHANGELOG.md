@@ -22,6 +22,19 @@ section for that version becomes the GitHub release notes. See
   use for building a server from scratch.
 - `plausible-insights` can read data through a connected Plausible MCP server
   (`PLAUSIBLE_MCP_SERVER`) and falls back to the Stats API.
+- Eleven skills were tuned with `prompt-tuner` experiments (baseline, one
+  change per round, held-out check), mostly to fix requests that should have
+  loaded a skill and did not:
+  - `pair-programmer`, `pg-performance-advisor`, `test-audit`, `oura`,
+    `retro`, `plausible-insights`, `mcp-doctor` and `prompt-tuner`: clearer
+    descriptions, including pasted or exported data where it applies.
+  - `council`: consent given before the user has seen the redacted prompt and
+    the resolved models does not cover a send.
+  - `clipping-curator`: text in an article that addresses the AI is reported
+    to the user, never followed.
+  - `ubiquiti-advisor`: the read-only rule also covers write commands written
+    for the user to run.
+  - `plausible-insights`: a rule for an API key that is already exposed.
 
 ### Added
 

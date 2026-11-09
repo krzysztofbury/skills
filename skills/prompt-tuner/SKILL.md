@@ -1,6 +1,6 @@
 ---
 name: prompt-tuner
-description: Improves a skill, prompt or other repeatable task by bounded experiment - diagnoses real failures, freezes a rubric and held-out cases, changes one thing per round within an agreed budget, and keeps only measured gains. Use for "improve, tune or optimize this skill or prompt", "prove the change helped", "why does this skill keep failing" or autoresearch. Not for one-off edits without measurement.
+description: Improves a skill, prompt or other repeatable task by bounded experiment - diagnoses real failures, freezes a rubric and held-out cases, changes one thing per round within an agreed budget, and keeps only measured gains. Use for "improve, tune or optimize this skill or prompt", "iterate until it passes these tests", "prove the change helped", "why does this skill keep failing", reviewing eval or A/B results before adopting a prompt or skill change, or autoresearch. Not for one-off edits without measurement.
 ---
 
 # Prompt Tuner

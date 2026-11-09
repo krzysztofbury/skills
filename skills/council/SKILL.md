@@ -22,6 +22,10 @@ only when the user asks for one or a disputed decision warrants it.
 3. Show the full redacted prompt and every seat with its provider and model.
 4. Wait for explicit consent to send. Invoking the skill is not consent;
    explicit authorization that already covers this payload and scope is.
+   Consent given before the user has seen the redacted prompt and the
+   resolved model IDs ("you have my consent", "use the defaults") does not
+   cover a payload you rewrote or models you looked up: show both and wait
+   for a reply before the first send, including any send by a subagent.
    For public code the user may explicitly waive redaction.
 5. Peer ranking also sends the opinions to the other providers. It is optional
    and must be inside the consent scope.

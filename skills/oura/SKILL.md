@@ -1,7 +1,7 @@
 ---
 name: oura
-description: Summarize and interpret Oura Ring data - sleep, readiness, activity, stress, heart rate and trends - from the Oura API v2 or an MCP server that exposes Oura data. Use when the user asks how they slept, how recovered they are, or about their Oura scores and health trends.
-compatibility: Requires either an Oura API v2 access token in an environment variable or a connected MCP server that exposes Oura data.
+description: Summarize and interpret Oura Ring data - sleep, readiness, activity, stress, heart rate, HRV, temperature and trends - from the Oura API v2, an MCP server that exposes Oura data, or Oura data the user pastes or exports. Use when the user asks how they slept, how recovered they are, what their Oura scores or readings mean (including whether a dip could signal illness), or about their health trends.
+compatibility: Requires an Oura API v2 access token in an environment variable, a connected MCP server that exposes Oura data, or Oura data the user supplies (pasted JSON or an export file).
 ---
 
 # Oura Health Summary
@@ -11,7 +11,9 @@ short, grounded summary. Scores are context, not a diagnosis or medical advice.
 
 ## Configuration
 
-Two data sources are supported. Configure one; the user may set these in the
+Oura data the user pastes into the conversation or names as an export file is
+a valid source: use it directly and do not ask for a token or an MCP server.
+Otherwise two data sources are supported. Configure one; the user may set these in the
 shell environment or name the MCP server in the project or user agent
 instructions (`AGENTS.md`, `CLAUDE.md` or equivalent).
 
@@ -62,7 +64,7 @@ Dates are `YYYY-MM-DD`; datetimes are ISO 8601. Results are paginated with
 the official reference at `https://cloud.ouraring.com/v2/docs`; check it before
 relying on a parameter not listed here.
 
-If neither source is configured, say which one is missing, point to this
+If the user supplied no data and neither source is configured, say which one is missing, point to this
 section and stop. Do not guess values.
 
 ## Workflow

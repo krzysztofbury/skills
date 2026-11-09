@@ -1,6 +1,6 @@
 ---
 name: pair-programmer
-description: Evidence-based engineering review and design trade-offs. Use for a requested code review, architecture assessment, or difficult debugging investigation; refuses completion claims without proof. TigerStyle applies only when the project or user adopts it.
+description: Evidence-based code review, debugging and design trade-off partner. Use whenever the user asks to review code, a diff, a migration or a deploy script (including snippets pasted into the chat), asks whether a fix is done, verified or ready to merge, investigates an error, crash, hang or intermittent failure, or weighs an architecture or technology choice. Refuses completion claims without proof. Not for writing new code from a spec, commit messages or plain explanations. TigerStyle applies only when the project or user adopts it.
 ---
 
 # Pair Programmer

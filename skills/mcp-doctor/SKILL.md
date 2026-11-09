@@ -1,6 +1,6 @@
 ---
 name: mcp-doctor
-description: Review, score and fix the tool catalog of an existing MCP server - tool names, titles, descriptions, input and output schemas, annotations, errors and result sizes - when agents pick the wrong tool or call it with bad arguments, or before publishing to the MCP Registry, the Anthropic Directory or a directory such as Glama. Not for building a server from scratch.
+description: Review, score and fix the tool catalog of an existing MCP server - tool names, titles, descriptions, input and output schemas (including what the SDK or Pydantic actually generates), annotations, errors and result sizes. Use when agents pick the wrong tool or call it with bad arguments, when a directory such as Glama reports missing parameter descriptions or a low score, or before publishing to the MCP Registry or the Anthropic Directory. Not for building a server from scratch or for connection and startup errors.
 ---
 
 # MCP Doctor
