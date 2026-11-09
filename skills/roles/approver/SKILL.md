@@ -64,5 +64,7 @@ as met or not met with how you know.
 
 - APPROVE: squash-merge with `--match-head-commit <that SHA>`, so a later push
   cannot slip in unapproved.
-- ESCALATE: add the `waiting:owner` label and write, for the owner, the exact
-  decision or check you need from them and the files to look at. Do not merge.
+- ESCALATE: add a line starting with 🙋 that holds the exact decision or
+  check you need from the owner, your recommendation, and the files to look
+  at. Do not merge, move the card or add labels; the coordinator moves it to
+  Blocked from your first line.

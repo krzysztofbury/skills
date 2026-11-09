@@ -11,7 +11,11 @@ section for that version becomes the GitHub release notes. See
 
 - `roles` group with three harness-neutral role skills for unattended work
   from a queue: `developer`, `reviewer` (verdict only) and `approver` (merge
-  or escalate). Each ends with a fixed first line a coordinator can act on.
+  or escalate). Roles only comment: each comment starts with a fixed word a
+  coordinator acts on, and anything the owner must answer starts with 🙋 and
+  states the exact question or command. Issues follow an intent structure:
+  context, goal with examples of done, why, assumptions, constraints and
+  anti-goals, and the ask.
 - `approver` reads a per-repository escalation policy from
   `.agents/escalation.md`, with a default list when it is missing.
 

@@ -12,7 +12,9 @@ report they will read.
 
 ## Before editing
 
-- Read the issue in full: context, goal, how to verify it, why, constraints.
+- Read the issue in full. A good issue states the intent, not the steps:
+  context, the goal with how to verify it (examples of done), why it matters,
+  assumptions, constraints and anti-goals, and the ask. The how is yours.
   If the goal or its check is missing or ambiguous in a way that changes the
   code, stop (see Blocked) with your recommended answer.
 - Read the repository's `AGENTS.md` or `CLAUDE.md` and the docs they name.
@@ -54,6 +56,9 @@ coordinator can act on it without reading further. When a reviewer returned
 ## Blocked
 
 Stop instead of guessing when a decision belongs to the owner, a dependency is
-missing, or the same failure repeats twice. Comment on the issue with State,
-Delta, Attempted and Blocker, then add the `blocked` label and `waiting:owner`
-(or `waiting:dep` when another issue or service is the cause).
+missing, or the same failure repeats twice. Comment on the issue with
+`STATUS: BLOCKED` as the first line, then State, Delta, Attempted and Blocker,
+and a line starting with 🙋 that holds the exact question or command for the
+owner, with your recommended answer. When another issue is the cause, name it
+as `Blocked by #N` instead. Do not move the card or add labels; the
+coordinator does that from your first line.

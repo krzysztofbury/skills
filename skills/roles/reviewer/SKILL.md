@@ -35,6 +35,7 @@ Then:
 - `Notes for the approver:` anything risky but correct, or `none`.
 
 PASS means you found nothing the developer must fix; it is not permission to
-merge. If this is the third CHANGES verdict on the same pull request, also add
-the `waiting:owner` label: two rework rounds that did not converge need a
-human, not a fourth round.
+merge. If this is the third CHANGES verdict on the same pull request, add a
+line starting with 🙋 that says what the developer and you disagree on: two
+rework rounds that did not converge need a human, not a fourth round. You
+only comment; the coordinator moves the card.
