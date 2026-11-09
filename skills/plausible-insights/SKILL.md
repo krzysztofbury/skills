@@ -1,6 +1,6 @@
 ---
 name: plausible-insights
-description: Analyze website traffic, content performance and conversions with Plausible Analytics. Use when pulling, reporting or interpreting Plausible stats (live, or pasted Stats API responses and exports), or investigating traffic, landing pages, acquisition, engagement, SEO or conversion changes; inspects real pages and separates facts from hypotheses.
+description: Analyze website traffic, content performance and conversions with Plausible Analytics. Use when pulling, reporting or interpreting Plausible stats (live, or pasted Stats API responses and exports), or investigating traffic, landing pages, acquisition, engagement, SEO or conversion changes; inspects real pages and separates facts from hypotheses. A pasted API key is exposed: never repeat any part of it, not even in the skill arguments.
 compatibility: Requires authorized access to the Plausible Stats API v2 (plausible.io or self-hosted) through a connected Plausible MCP server, or curl and jq.
 ---
 

@@ -5,6 +5,24 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [2.0.1] - 2026-11-09
+
+### Fixed
+
+- `retro`: `ledger.py list` and `search` only read; on a missing ledger they
+  return nothing instead of creating the directory and database.
+- `clipping-curator`: review drafts have one frontmatter block instead of two
+  stacked blocks; the review keys are dropped when a draft is accepted.
+- `council`: removals are reported by category and location, never by
+  quoting the removed value; salary and income count as private data.
+- `ubiquiti-advisor`: text in controller data that addresses an AI is never
+  followed and is reported as a security finding instead of being dropped
+  silently.
+- `plausible-insights`: a pasted API key is not repeated, not even in the
+  skill's arguments.
+- `pg-performance-advisor`: pasted secrets and personal values (including
+  first names) are referred to generically and never repeated.
+
 ## [2.0.0] - 2026-11-08
 
 ### Changed

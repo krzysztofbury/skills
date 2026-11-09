@@ -15,11 +15,15 @@ only when the user asks for one or a disputed decision warrants it.
 ## Redaction gate
 
 1. Redact the payload. Remove credentials, personal names, employers, private
-   project names and hosts, balances and account data, health and family data,
-   and unapproved confidential code. Keep the structure of the problem.
+   project names and hosts, balances, salary, income and account data, health
+   and family data, and unapproved confidential code. Keep the structure of the
+   problem; when an amount matters to the decision, use a range or a ratio.
 2. Make the prompt self-contained: relevant approved excerpts, constraints and
    the desired answer format. Adapters do not read the repository.
 3. Show the full redacted prompt and every seat with its provider and model.
+   Report each removal by category and location ("credential, line 2 of
+   the config"), never by quoting or paraphrasing the removed value, even
+   when the user asks for a list of what was removed.
 4. Wait for explicit consent to send. Invoking the skill is not consent;
    explicit authorization that already covers this payload and scope is.
    Consent given before the user has seen the redacted prompt and the
