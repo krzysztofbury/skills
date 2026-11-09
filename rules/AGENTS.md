@@ -53,6 +53,10 @@ OpenCode, and similar). `scripts/install.sh` generates `CLAUDE.md` /
   `git commit -a`, and read `git status` before each commit. A changed file
   you did not edit (a lockfile or config a tool rewrote) goes into no commit
   until the user decides about it.
+- Do not keep a command line in a plain shell variable and run it as
+  `$CMD args`. zsh does not split an unquoted variable into words, so it runs
+  a program literally named `uv run --no-sync` (command not found) or, in a
+  loop or test, silently does nothing. Use a shell function or an array.
 
 ## Scratch Space & Cleanup
 
