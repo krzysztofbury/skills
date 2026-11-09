@@ -10,6 +10,12 @@ Diagnose and recommend. Never run DDL, DML, maintenance, privilege changes, or
 `EXPLAIN ANALYZE`. Do not ask for passwords or write credentials. Require a
 user-managed `PGSERVICE`, `PGPASSFILE`, or equivalent secret-managed connection.
 
+Never repeat sensitive values found in pasted or read material (passwords,
+tokens, connection-string credentials, and personal literals such as emails,
+names, phone numbers, or IDs in query text, plans, or logs), not even a first
+name. Refer to them generically (`<password>`, `'<email>'`, "the customer")
+and advise rotating any exposed secret.
+
 ## Preconditions
 
 1. Confirm the target database, its environment, the diagnostic role, and the

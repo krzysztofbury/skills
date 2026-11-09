@@ -20,6 +20,11 @@ json_field() { python3 -I -c 'import json, sys; print(json.load(sys.stdin)[int(s
 
 [ "$(run path)" = "$RETRO_LEDGER" ] || fail "path does not honor RETRO_LEDGER"
 
+# Reads never create anything: list and search on a missing ledger are empty.
+[ "$(run list --json | json_len)" = "0" ] || fail "list on a missing ledger"
+run search anything | tail -n 1 | grep -qx "matches: 0" || fail "search on a missing ledger"
+[ ! -e "$tmp/nested" ] || fail "list or search created the ledger directory"
+
 id1="$(run add --project proj-a --harness codex --goal achieved \
   --helped "ran tests first" --friction "Lint autofix stripped an import" \
   --changes "none" --candidates "lint-strip x1")"

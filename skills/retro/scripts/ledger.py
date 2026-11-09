@@ -80,6 +80,7 @@ def ledger_path():
 
 
 def connect():
+    """Open the ledger for writing, creating it on first use."""
     path = ledger_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(path))
@@ -87,6 +88,23 @@ def connect():
     conn.execute(SCHEMA)
     conn.commit()
     return conn
+
+
+def read_rows(sql, params):
+    """Run a query read-only. A missing ledger has no rows; nothing is created."""
+    path = ledger_path()
+    if not path.exists():
+        return []
+    conn = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True)
+    conn.row_factory = sqlite3.Row
+    try:
+        return conn.execute(sql, params).fetchall()
+    except sqlite3.OperationalError as error:
+        if "no such table" in str(error):
+            return []
+        raise
+    finally:
+        conn.close()
 
 
 def _git(*args):
@@ -183,11 +201,7 @@ def cmd_list(args):
         params.append(args.project)
     sql += " ORDER BY created_at DESC, id DESC LIMIT ?"
     params.append(args.limit)
-    conn = connect()
-    try:
-        rows = conn.execute(sql, params).fetchall()
-    finally:
-        conn.close()
+    rows = read_rows(sql, params)
     _emit(rows, args.json)
 
 
@@ -202,11 +216,7 @@ def cmd_search(args):
         sql += " AND project = ?"
         params.append(args.project)
     sql += " ORDER BY created_at DESC, id DESC"
-    conn = connect()
-    try:
-        rows = conn.execute(sql, params).fetchall()
-    finally:
-        conn.close()
+    rows = read_rows(sql, params)
     _emit(rows, args.json, footer=f"matches: {len(rows)}")
 
 

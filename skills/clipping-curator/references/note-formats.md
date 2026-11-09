@@ -53,19 +53,26 @@ decision or lesson, with the date and source URL, appended to `memory_file`.
 
 ## Review draft
 
+A draft has one frontmatter block: the final note's keys plus three review
+keys. Never stack a second frontmatter block under the first.
+
 ```yaml
 ---
 status: review
-source: <original URL>
 source_file: <path of the moved article>
 destination: <target folder or existing note to update>
+title: <concise title>
 type: knowledge | process | protocol
+source: <original URL>
+created: <YYYY-MM-DD>
+tags: [<per tags settings>]
 ---
 ```
 
-Followed by the transformed content in the final note's format. When the
-proposal updates an existing note, show the section to add or change, not the
-whole note.
+The body follows in the final note's section structure. When the draft is
+accepted, the final note keeps this frontmatter without `status`,
+`source_file` and `destination`. When the proposal updates an existing note,
+show the section to add or change, not the whole note.
 
 ## Summary in the source article
 

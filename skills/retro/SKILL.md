@@ -35,8 +35,9 @@ names and remote URLs.
 ### Ledger script
 
 All ledger access goes through `scripts/ledger.py` in this skill's directory.
-It needs only Python 3 and its standard library, and creates the database and
-its parent directory on first use. Never write SQL by hand against the ledger.
+It needs only Python 3 and its standard library. `add` creates the database
+and its parent directory on first use; `list`, `search` and `path` only read
+and never create anything. Never write SQL by hand against the ledger.
 
 ```bash
 python3 -I scripts/ledger.py add --goal partial --harness codex \
