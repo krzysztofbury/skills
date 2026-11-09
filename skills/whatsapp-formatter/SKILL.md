@@ -1,9 +1,9 @@
 ---
-name: whatsapp-style-guide
+name: whatsapp-formatter
 description: Formats messages for WhatsApp's mobile-first markup. Use when a response will be pasted or sent through WhatsApp.
 ---
 
-# WhatsApp Style Guide
+# WhatsApp Formatter
 
 Use WhatsApp formatting rather than GitHub-flavored Markdown.
 

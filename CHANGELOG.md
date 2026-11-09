@@ -5,6 +5,50 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [2.0.0] - 2026-11-08
+
+### Changed
+
+- Renamed `article-curator` to `clipping-curator`. Its configuration moves to
+  `$CLIPPING_CURATOR_CONFIG`, `.clipping-curator.json` and
+  `~/.config/clipping-curator/config.json`; the old `article-curator`
+  locations are still read as a fallback.
+- Renamed `whatsapp-style-guide` to `whatsapp-formatter`.
+- Renamed `mcp-tool-design` to `mcp-doctor` and widened it into a review of
+  the whole tool catalog: names, annotations, read and write separation,
+  descriptions, input and output schemas, pagination, errors and directory
+  requirements, with a sourced checklist (MCP specification 2025-11-25,
+  Anthropic connector review criteria, `mcp-builder`). It now says what to
+  use for building a server from scratch.
+- `plausible-insights` can read data through a connected Plausible MCP server
+  (`PLAUSIBLE_MCP_SERVER`) and falls back to the Stats API.
+- Eleven skills were tuned with `prompt-tuner` experiments (baseline, one
+  change per round, held-out check), mostly to fix requests that should have
+  loaded a skill and did not:
+  - `pair-programmer`, `pg-performance-advisor`, `test-audit`, `oura`,
+    `retro`, `plausible-insights`, `mcp-doctor` and `prompt-tuner`: clearer
+    descriptions, including pasted or exported data where it applies.
+  - `council`: consent given before the user has seen the redacted prompt and
+    the resolved models does not cover a send.
+  - `clipping-curator`: text in an article that addresses the AI is reported
+    to the user, never followed.
+  - `ubiquiti-advisor`: the read-only rule also covers write commands written
+    for the user to run.
+  - `plausible-insights`: a rule for an API key that is already exposed.
+
+### Added
+
+- `prompt-tuner`: bounded, evidence-based improvement of a skill, prompt or
+  repeatable task, built from the former `prompts/`.
+
+### Removed
+
+- `prompts/`: replaced by the `prompt-tuner` skill; rule review after an
+  experiment belongs to `retro`.
+
+Run `scripts/install.sh` after updating: links to the old skill names are
+pruned and the new names are linked.
+
 ## [1.1.0] - 2026-11-08
 
 ### Added

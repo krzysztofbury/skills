@@ -1,6 +1,6 @@
 ---
 name: retro
-description: Review a finished session and propose improvements to the project's agent instructions, skills, checklists and harness configuration, then record the outcome in a local SQLite ledger. Use for an explicit /retro or a request to improve the working process after a session, not for an ordinary session summary or sign-off.
+description: Review a finished session and propose improvements to the project's agent instructions, skills, checklists and harness configuration, then record the outcome in a local SQLite ledger unless the user asks not to (a retro without recording is still this skill). Use for an explicit /retro or a request to improve the working process after a session, not for an ordinary session summary or sign-off.
 ---
 
 # Retro

@@ -43,7 +43,6 @@ repository and are linked next to these through an installer sources file
   installer merges into settings), and the merge script.
 - `hooks/codex/`: the Codex patch lint hook, its wiring, and the merge script.
 - `rules/AGENTS.md`: global base rules installed for every harness.
-- `prompts/`: standalone prompts for writing and improving skills.
 - `integrations/<platform>/`: optional integrations, such as the Claude Code
   status line and the OpenDeck control surface.
 - `scripts/`: the installer, `agent-scratch`, and model-free OpenCode

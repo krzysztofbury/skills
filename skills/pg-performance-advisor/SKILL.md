@@ -1,6 +1,6 @@
 ---
 name: pg-performance-advisor
-description: Performs read-only PostgreSQL performance diagnostics for locks, sessions, table statistics, and index candidates. Use for database health checks, slow-query investigations, bloat symptoms, or index reviews.
+description: Read-only PostgreSQL performance diagnosis - slow queries and EXPLAIN plans, pg_stat_statements, locks and blocking sessions, autovacuum, bloat and XID wraparound, table statistics, and index reviews. Use for health checks and slow-query or incident investigations, through a read-only connection or from pasted query output, plans, lock views or logs. Not for other database engines or for writing ordinary SQL.
 compatibility: Requires psql access through a user-managed read-only PostgreSQL service profile.
 ---
 

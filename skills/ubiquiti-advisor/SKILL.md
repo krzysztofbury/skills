@@ -57,6 +57,11 @@ traffic categories and household or office activity.
   any repository. Never store cookies, login responses or keys with it.
 - Do not run speed tests, configuration changes, firmware updates, restarts
   or other device actions. Describe the change and let the user apply it.
+- This also covers commands for the user to run: do not write curl calls,
+  scripts or payloads that change the controller (`POST`, `PUT` or `DELETE`
+  requests, `cmd/*` endpoints, writes to `rest/*`), even when the user asks
+  for them and says they will run them. Give the UI steps, a backup first,
+  a maintenance window, and how to verify the result with a read.
 
 ## Running Reads
 
