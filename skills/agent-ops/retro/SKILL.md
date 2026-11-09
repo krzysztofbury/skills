@@ -69,6 +69,9 @@ Changes land in the project that the session worked on:
 - specification and docs: `SPEC.md`, `README`, `docs/`;
 - project skills and checklists, for example `skills/`, `.claude/skills/`,
   `.agents/skills/`;
+- the escalation policy `.agents/escalation.md` used by the `approver` role:
+  add what should have reached the owner, relax what the owner keeps waving
+  through;
 - harness configuration: hooks, permission and settings files of the harness
   in use.
 
