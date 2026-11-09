@@ -33,6 +33,9 @@ its own name, so the group does not change how a skill is invoked.
 | `agent-ops` | `council` | Convene installed agent CLIs as a multi-model council with anonymized peer review and a redaction gate. |
 | `agent-ops` | `prompt-tuner` | Improve a skill, prompt or repeatable task by bounded experiment: diagnosis, frozen rubric, held-out cases, budget and round caps. |
 | `agent-ops` | `retro` | Run a session retrospective that improves the project's rules and skills, with a SQLite ledger. |
+| `roles` | `developer` | Implement one queued issue on its own branch, with its edge cases and evidence, and report `STATUS: READY` or `BLOCKED`. |
+| `roles` | `reviewer` | Review one pull request against its issue and evidence and give `VERDICT: PASS` or `CHANGES`; never merges. |
+| `roles` | `approver` | Final gate for a reviewed pull request: squash-merge it, or escalate to the owner by the repository's escalation policy. |
 | `content` | `clipping-curator` | Turn clipped web articles into concise, reusable notes in a configurable folder and format. |
 | `content` | `plausible-insights` | Analyze Plausible Analytics traffic, content, and SEO for a configured site, through the Stats API or a Plausible MCP server. |
 | `content` | `video-edit` | Edit recorded footage from a word-level transcript: cuts, cards, subtitles, loudness, vertical Shorts, verified renders. |

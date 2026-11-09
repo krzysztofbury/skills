@@ -5,6 +5,22 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [2.3.0] - 2026-11-10
+
+### Added
+
+- `roles` group with three harness-neutral role skills for unattended work
+  from a queue: `developer`, `reviewer` (verdict only) and `approver` (merge
+  or escalate). Each ends with a fixed first line a coordinator can act on.
+- `approver` reads a per-repository escalation policy from
+  `.agents/escalation.md`, with a default list when it is missing.
+
+### Changed
+
+- `retro` lists `.agents/escalation.md` as a default target, so escalations
+  the owner waves through, or merges that should have been escalated, update
+  the policy.
+
 ## [2.2.0] - 2026-11-09
 
 ### Changed
