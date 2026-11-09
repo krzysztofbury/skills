@@ -88,12 +88,25 @@ function within(path, root) {
   return path === root || path.startsWith(root.endsWith(sep) ? root : root + sep);
 }
 
-function skillNames(directory) {
-  return readdirSync(directory, { withFileTypes: true })
-    .filter((entry) => !entry.name.startsWith('.') && (entry.isDirectory() || entry.isSymbolicLink()))
-    .filter((entry) => existsSync(join(directory, entry.name, 'SKILL.md')))
-    .map((entry) => entry.name)
-    .sort();
+// Maps each skill name to its folder. A skill sits directly in the source
+// directory or one level down in a group folder (skills/<group>/<skill>).
+function skillDirectories(directory) {
+  const found = new Map();
+  const add = (name, path) => {
+    if (found.has(name)) throw new Error(`Skill ${name} appears twice in ${directory}`);
+    found.set(name, path);
+  };
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    if (entry.name.startsWith('.') || !(entry.isDirectory() || entry.isSymbolicLink())) continue;
+    const path = join(directory, entry.name);
+    if (existsSync(join(path, 'SKILL.md'))) { add(entry.name, path); continue; }
+    if (!statSync(path).isDirectory()) continue;
+    for (const inner of readdirSync(path, { withFileTypes: true })) {
+      if (inner.name.startsWith('.') || !(inner.isDirectory() || inner.isSymbolicLink())) continue;
+      if (existsSync(join(path, inner.name, 'SKILL.md'))) add(inner.name, join(path, inner.name));
+    }
+  }
+  return new Map([...found].sort(([a], [b]) => a.localeCompare(b)));
 }
 
 function checkoutGit(entry, cacheRoot, log) {
@@ -144,7 +157,8 @@ export function resolveSkills(sourcesFile, { home, cacheRoot, log = () => {} }) 
     }
     if (!existsSync(root) || !statSync(root).isDirectory()) throw new Error(`Skill source not found: ${root}`);
     roots.push(root);
-    const available = skillNames(root);
+    const directories = skillDirectories(root);
+    const available = [...directories.keys()];
     const wanted = entry.skills ?? available;
     const rename = entry.rename ?? {};
     for (const name of wanted) {
@@ -156,7 +170,7 @@ export function resolveSkills(sourcesFile, { home, cacheRoot, log = () => {} }) 
       if (previous) {
         throw new Error(`Skill name clash: ${installed} comes from ${previous.label} and ${label}; exclude or rename one`);
       }
-      chosen.set(installed, { name: installed, path: join(root, name), label, root });
+      chosen.set(installed, { name: installed, path: directories.get(name), label, root });
     }
   }
   return { skills: [...chosen.values()], roots };

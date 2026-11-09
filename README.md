@@ -19,23 +19,26 @@ and Gemini CLI.
 
 ## Available Skills
 
-| Skill | Purpose |
-| --- | --- |
-| `prompt-tuner` | Improve a skill, prompt or repeatable task by bounded experiment: diagnosis, frozen rubric, held-out cases, budget and round caps. |
-| `clipping-curator` | Turn clipped web articles into concise, reusable notes in a configurable folder and format. |
-| `council` | Convene installed agent CLIs as a multi-model council with anonymized peer review and a redaction gate. |
-| `mcp-doctor` | Review, score and fix an existing MCP server's tool catalog against the specification and directory requirements. To build a server, use `mcp-builder`. |
-| `oura` | Summarize sleep, readiness, and activity from the Oura API or an Oura MCP server. |
-| `pair-programmer` | Evidence-based code review, design trade-offs, and debugging, with proof before completion claims. |
-| `pg-performance-advisor` | Diagnose PostgreSQL performance with read-only, redacted queries. |
-| `plausible-insights` | Analyze Plausible Analytics traffic, content, and SEO for a configured site, through the Stats API or a Plausible MCP server. |
-| `retro` | Run a session retrospective that improves the project's rules and skills, with a SQLite ledger. |
-| `sdlc-evaluator` | Audit a repository against an agentic software development lifecycle. |
-| `sentry-observability` | Design and review Sentry observability with privacy controls. |
-| `test-audit` | Check whether Python and SQL tests protect real behavior. |
-| `ubiquiti-advisor` | Review a UniFi network through a configured, read-only controller connection. |
-| `video-edit` | Edit recorded footage from a word-level transcript: cuts, cards, subtitles, loudness, vertical Shorts, verified renders. |
-| `whatsapp-formatter` | Format concise, mobile-first WhatsApp messages. |
+Skills are grouped in folders under `skills/`. The installer links each one by
+its own name, so the group does not change how a skill is invoked.
+
+| Group | Skill | Purpose |
+| --- | --- | --- |
+| `engineering` | `mcp-doctor` | Review, score and fix an existing MCP server's tool catalog against the specification and directory requirements. To build a server, use `mcp-builder`. |
+| `engineering` | `pair-programmer` | Evidence-based code review, design trade-offs, and debugging, with proof before completion claims. |
+| `engineering` | `pg-performance-advisor` | Diagnose PostgreSQL performance with read-only, redacted queries. |
+| `engineering` | `sdlc-evaluator` | Audit a repository against an agentic software development lifecycle. |
+| `engineering` | `sentry-observability` | Design and review Sentry observability with privacy controls. |
+| `engineering` | `test-audit` | Check whether Python and SQL tests protect real behavior. |
+| `agent-ops` | `council` | Convene installed agent CLIs as a multi-model council with anonymized peer review and a redaction gate. |
+| `agent-ops` | `prompt-tuner` | Improve a skill, prompt or repeatable task by bounded experiment: diagnosis, frozen rubric, held-out cases, budget and round caps. |
+| `agent-ops` | `retro` | Run a session retrospective that improves the project's rules and skills, with a SQLite ledger. |
+| `content` | `clipping-curator` | Turn clipped web articles into concise, reusable notes in a configurable folder and format. |
+| `content` | `plausible-insights` | Analyze Plausible Analytics traffic, content, and SEO for a configured site, through the Stats API or a Plausible MCP server. |
+| `content` | `video-edit` | Edit recorded footage from a word-level transcript: cuts, cards, subtitles, loudness, vertical Shorts, verified renders. |
+| `content` | `whatsapp-formatter` | Format concise, mobile-first WhatsApp messages. |
+| `personal` | `oura` | Summarize sleep, readiness, and activity from the Oura API or an Oura MCP server. |
+| `personal` | `ubiquiti-advisor` | Review a UniFi network through a configured, read-only controller connection. |
 
 Skills that need user-specific details, such as a site, a device, a brand, or a
 data source, read them from documented configuration. Each skill's `SKILL.md`

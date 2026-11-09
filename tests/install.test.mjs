@@ -39,7 +39,7 @@ test('default sources link every skill of this repository for every harness dire
   const result = run(home, '--claude', '--agents');
   assert.equal(result.status, 0, result.stderr);
   for (const directory of ['.claude/skills', '.agents/skills']) {
-    assert.equal(readlinkSync(join(home, directory, 'retro')), join(repository, 'skills/retro'));
+    assert.equal(readlinkSync(join(home, directory, 'retro')), join(repository, 'skills/agent-ops/retro'));
   }
   assert.equal(run(home, '--claude', '--agents').stdout.includes('Linked'), false, 'second run must be a no-op');
 });
@@ -76,6 +76,24 @@ test('a sources file combines repositories and refuses name clashes before chang
   assert.equal(readlinkSync(join(home, '.agents/skills/private-retro')), join(privateSkills, 'retro'));
 });
 
+test('skills in group folders are linked by their own name, and a duplicate name fails', (t) => {
+  const home = workspace(t);
+  const grouped = join(home, 'grouped');
+  skill(join(grouped, 'work'), 'deploy-check');
+  skill(grouped, 'flat-skill');
+  const sources = join(home, 'sources.json');
+  writeFileSync(sources, JSON.stringify([{ path: './grouped' }]));
+  assert.equal(run(home, '--agents', '--sources', sources).status, 0);
+  assert.equal(readlinkSync(join(home, '.agents/skills/deploy-check')), join(grouped, 'work/deploy-check'));
+  assert.equal(readlinkSync(join(home, '.agents/skills/flat-skill')), join(grouped, 'flat-skill'));
+  assert.equal(existsSync(join(home, '.agents/skills/work')), false, 'a group folder is not a skill');
+
+  skill(join(grouped, 'other'), 'deploy-check');
+  const duplicate = run(home, '--agents', '--sources', sources);
+  assert.equal(duplicate.status, 1);
+  assert.match(duplicate.stderr, /deploy-check appears twice/);
+});
+
 test('links into a source that no longer provides a skill are pruned, foreign links are kept', (t) => {
   const home = workspace(t);
   const privateSkills = join(home, 'private/skills');
@@ -107,7 +125,7 @@ test('a prune root retires links left behind by a moved repository', (t) => {
   symlinkSync(join(old, 'skills/removed'), join(home, '.agents/skills/removed'));
   const result = run(home, '--agents', '--prune-root', old);
   assert.equal(result.status, 0, result.stderr);
-  assert.equal(readlinkSync(join(home, '.agents/skills/retro')), join(repository, 'skills/retro'));
+  assert.equal(readlinkSync(join(home, '.agents/skills/retro')), join(repository, 'skills/agent-ops/retro'));
   assert.equal(existsSync(join(home, '.agents/skills/removed')), false);
   assert.equal(lstatSync(join(home, '.agents/skills/removed'), { throwIfNoEntry: false }), undefined);
 });
