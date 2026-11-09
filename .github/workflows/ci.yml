@@ -35,8 +35,8 @@ jobs:
             bash -n "$file"
           done < <(git ls-files -z '*.sh')
       - run: node --test tests/*.test.mjs integrations/opendeck/dev.krzysztof.agents.sdPlugin/test/*.test.js
-      - run: bash skills/council/scripts/council_test.sh
-      - run: bash skills/retro/scripts/ledger_test.sh
+      - run: bash skills/agent-ops/council/scripts/council_test.sh
+      - run: bash skills/agent-ops/retro/scripts/ledger_test.sh
       - run: shellcheck hooks/claude/*.sh integrations/claude/*.sh scripts/*.sh
       - name: Test Claude guards
         run: |

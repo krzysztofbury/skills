@@ -3,7 +3,7 @@ import { randomBytes } from 'node:crypto';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { invocation } from '../skills/council/scripts/member.mjs';
+import { invocation } from '../skills/agent-ops/council/scripts/member.mjs';
 
 const root = mkdtempSync(join(tmpdir(), 'council-opencode-check-'));
 const cwd = join(root, 'workspace');

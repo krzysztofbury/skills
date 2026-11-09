@@ -61,8 +61,8 @@ Run before submitting a change:
 pre-commit run --all-files
 while IFS= read -r -d '' file; do bash -n "$file"; done < <(git ls-files -z '*.sh')
 node --test tests/*.test.mjs integrations/opendeck/dev.krzysztof.agents.sdPlugin/test/*.test.js
-bash skills/council/scripts/council_test.sh
-bash skills/retro/scripts/ledger_test.sh
+bash skills/agent-ops/council/scripts/council_test.sh
+bash skills/agent-ops/retro/scripts/ledger_test.sh
 ```
 
 Exercise every hook with safe and confirmation-required JSON fixtures. Review

@@ -1,5 +1,5 @@
 // Repository-level council checks with fixture CLIs; no credentials, network or
-// model calls. Lifecycle tests ship with the skill: bash skills/council/scripts/council_test.sh
+// model calls. Lifecycle tests ship with the skill: bash skills/agent-ops/council/scripts/council_test.sh
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, copyFileSync, chmodSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { invocation, extract } from '../skills/council/scripts/member.mjs';
+import { invocation, extract } from '../skills/agent-ops/council/scripts/member.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 test('Claude disables tools and inherited customizations but preserves auth', () => {
@@ -66,7 +66,7 @@ test('real runner path passes explicit models, isolates cwd and records honest m
   const prompt = join(directory, 'prompt.md');
   writeFileSync(prompt, 'Public technical fixture. No personal data.');
   const run = join(directory, 'run');
-  const result = spawnSync('/bin/bash', [join(root, 'skills/council/scripts/council.sh'),
+  const result = spawnSync('/bin/bash', [join(root, 'skills/agent-ops/council/scripts/council.sh'),
     'dispatch', prompt, '--run-dir', run, '--members', 'claude codex opencode',
     '--model', 'claude=opus', '--model', 'codex=test-model',
     '--model', 'opencode=provider/test-model#medium', '--effort', 'codex=medium',

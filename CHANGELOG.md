@@ -5,6 +5,15 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [2.2.0] - 2026-11-09
+
+### Changed
+
+- Skills are grouped in folders: `engineering`, `agent-ops`, `content` and
+  `personal`. Installed names are unchanged.
+- The installer finds skills one folder level down in any source and stops on
+  a name that appears twice in one source.
+
 ## [2.1.0] - 2026-11-09
 
 ### Added
