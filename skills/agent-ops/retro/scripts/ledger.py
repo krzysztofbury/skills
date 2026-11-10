@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
-"""Retro ledger: a small SQLite log of retrospective entries.
+"""Retro ledger: a small log of retrospective entries.
 
 Standard library only. Run as `python3 -I scripts/ledger.py <command>`.
 
-Database path, first match wins:
+Ledger path, first match wins:
   1. environment variable RETRO_LEDGER
   2. key "ledger" in ~/.config/retro/config.json (XDG_CONFIG_HOME honored)
-  3. ${XDG_STATE_HOME:-~/.local/state}/retro/ledger.sqlite
+  3. .agents/retro.jsonl in the current git repository, if that file exists
+  4. ${XDG_STATE_HOME:-~/.local/state}/retro/ledger.sqlite
+
+A path ending in .jsonl is an append-only JSON Lines file, one entry per line,
+meant to be committed with the project so the history is reviewable and
+merges cleanly. Any other path is a SQLite database.
 """
 
 import argparse
 import json
 import os
+import secrets
 import sqlite3
 import subprocess
 import sys
@@ -30,7 +36,9 @@ FIELDS = (
     "friction",
     "changes",
     "candidates",
+    "refs",
 )
+TEXT_FIELDS = ("helped", "friction", "changes", "candidates", "refs")
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS entries (
     id INTEGER PRIMARY KEY,
@@ -41,9 +49,11 @@ CREATE TABLE IF NOT EXISTS entries (
     helped TEXT,
     friction TEXT,
     changes TEXT,
-    candidates TEXT
+    candidates TEXT,
+    refs TEXT
 )
 """
+REPO_LEDGER = Path(".agents") / "retro.jsonl"
 
 
 class LedgerError(Exception):
@@ -76,7 +86,42 @@ def ledger_path():
             if not isinstance(value, str):
                 raise LedgerError(f'{cfg}: "ledger" must be a string path')
             return Path(value).expanduser()
+    top = _git("rev-parse", "--show-toplevel")
+    if top and (Path(top) / REPO_LEDGER).is_file():
+        return Path(top) / REPO_LEDGER
     return _env_dir("XDG_STATE_HOME", ".local/state") / "retro" / "ledger.sqlite"
+
+
+def is_jsonl(path):
+    return path.suffix == ".jsonl"
+
+
+def jsonl_rows():
+    """All entries of a JSON Lines ledger; a missing file has none."""
+    path = ledger_path()
+    if not path.exists():
+        return []
+    rows = []
+    with path.open(encoding="utf-8") as handle:
+        for number, line in enumerate(handle, 1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                item = json.loads(line)
+            except ValueError as exc:
+                raise LedgerError(f"{path}:{number}: not JSON: {exc}") from exc
+            if not isinstance(item, dict):
+                raise LedgerError(f"{path}:{number}: entry must be an object")
+            rows.append({key: item.get(key) for key in FIELDS})
+    return rows
+
+
+def jsonl_append(entry):
+    path = ledger_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(entry, ensure_ascii=False, sort_keys=False) + "\n")
 
 
 def connect():
@@ -86,6 +131,9 @@ def connect():
     conn = sqlite3.connect(str(path))
     conn.row_factory = sqlite3.Row
     conn.execute(SCHEMA)
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(entries)")}
+    if "refs" not in columns:
+        conn.execute("ALTER TABLE entries ADD COLUMN refs TEXT")
     conn.commit()
     return conn
 
@@ -98,7 +146,10 @@ def read_rows(sql, params):
     conn = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True)
     conn.row_factory = sqlite3.Row
     try:
-        return conn.execute(sql, params).fetchall()
+        return [
+            {key: dict(row).get(key) for key in FIELDS}
+            for row in conn.execute(sql, params).fetchall()
+        ]
     except sqlite3.OperationalError as error:
         if "no such table" in str(error):
             return []
@@ -160,7 +211,7 @@ def _emit(rows, as_json, footer=None):
             f"#{item['id']} {item['created_at']} | {item['harness'] or '-'}"
             f" | {item['project']} | goal: {item['goal'] or '-'}"
         )
-        for key in ("helped", "friction", "changes", "candidates"):
+        for key in TEXT_FIELDS:
             if item[key]:
                 print(f"  {key}: {item[key]}")
     if footer is not None:
@@ -170,30 +221,37 @@ def _emit(rows, as_json, footer=None):
 def cmd_add(args):
     project = args.project or detect_project()
     created_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    with connect() as conn:
-        cur = conn.execute(
-            "INSERT INTO entries (created_at, project, harness, goal, helped,"
-            " friction, changes, candidates) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                created_at,
-                project,
-                args.harness,
-                args.goal,
-                args.helped,
-                args.friction,
-                args.changes,
-                args.candidates,
-            ),
-        )
-        new_id = cur.lastrowid
-    conn.close()
+    values = {key: getattr(args, key) for key in ("harness", "goal") + TEXT_FIELDS}
+    if is_jsonl(ledger_path()):
+        new_id = secrets.token_hex(4)
+        entry = {"id": new_id, "created_at": created_at, "project": project}
+        entry.update({key: value for key, value in values.items() if value})
+        jsonl_append(entry)
+    else:
+        with connect() as conn:
+            cur = conn.execute(
+                "INSERT INTO entries (created_at, project, harness, goal, helped,"
+                " friction, changes, candidates, refs)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (created_at, project) + tuple(values.values()),
+            )
+            new_id = cur.lastrowid
+        conn.close()
     if args.json:
         print(json.dumps({"id": new_id, "created_at": created_at, "project": project}))
     else:
         print(new_id)
 
 
+def _newest_first(rows):
+    return sorted(rows, key=lambda row: row["created_at"] or "", reverse=True)
+
+
 def cmd_list(args):
+    if is_jsonl(ledger_path()):
+        rows = [r for r in jsonl_rows() if not args.project or r["project"] == args.project]
+        _emit(_newest_first(rows)[: args.limit], args.json)
+        return
     sql = "SELECT * FROM entries"
     params = []
     if args.project:
@@ -206,6 +264,17 @@ def cmd_list(args):
 
 
 def cmd_search(args):
+    if is_jsonl(ledger_path()):
+        needle = args.pattern.casefold()
+        rows = [
+            r
+            for r in jsonl_rows()
+            if (not args.project or r["project"] == args.project)
+            and any(needle in (r[key] or "").casefold() for key in TEXT_FIELDS[1:4])
+        ]
+        rows = _newest_first(rows)
+        _emit(rows, args.json, footer=f"matches: {len(rows)}")
+        return
     like = _like(args.pattern)
     sql = (
         "SELECT * FROM entries WHERE (friction LIKE ? ESCAPE '\\'"
@@ -226,7 +295,7 @@ def cmd_path(_args):
 
 def build_parser():
     parser = argparse.ArgumentParser(
-        prog="ledger.py", description="Retro ledger (SQLite)."
+        prog="ledger.py", description="Retro ledger (JSON Lines or SQLite)."
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -241,6 +310,7 @@ def build_parser():
     add.add_argument("--friction", help="problem and confirmed cause or hypothesis")
     add.add_argument("--changes", help="files actually changed, or none")
     add.add_argument("--candidates", help="pattern and occurrence count, or none")
+    add.add_argument("--refs", help="issue or pull request links the entry is about")
     add.add_argument("--json", action="store_true", help="print JSON")
     add.set_defaults(func=cmd_add)
 
@@ -259,7 +329,7 @@ def build_parser():
     srch.add_argument("--json", action="store_true", help="print JSON")
     srch.set_defaults(func=cmd_search)
 
-    pth = sub.add_parser("path", help="print the resolved database path")
+    pth = sub.add_parser("path", help="print the resolved ledger path")
     pth.set_defaults(func=cmd_path)
     return parser
 

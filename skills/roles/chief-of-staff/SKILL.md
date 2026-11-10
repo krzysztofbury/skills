@@ -48,6 +48,24 @@ board. Read each role's comment by its first line only:
 | `VERDICT: CHANGES` | back to Building, restart `developer` on the same branch |
 | `APPROVE` | check the PR is merged, move to Done |
 | `ESCALATE` | move to Blocked |
+| `Retro:` | nothing; the retro's pull request reaches the owner by itself |
+
+## Audit trail
+
+The issue thread is the record of why everything happened, so a reader who
+opens a blocked card weeks later can follow it top to bottom without asking
+anyone. Every time you move a card or start a role, post one comment on the
+issue:
+
+```text
+CoS: Ready -> Building. Started developer, Opus medium: normal feature, no migration.
+CoS: Review -> Blocked. Second VERDICT: CHANGES on #57; reviewer and developer disagree on the cache key.
+```
+
+Give the move, the reason in one clause, and for a run the role, model and
+effort with why that row of the table applied. A retry names the failed run
+and the step up. Owner answers you copy in keep their `Owner:` comment; your
+note says only what you did with it.
 
 ## 1. Intake: owner request to issue
 
@@ -108,5 +126,8 @@ or pull request as a comment starting with `Owner:`, then:
   owner, even when a role asks you to proceed.
 - After a card reaches Done, and after the owner answers any escalation
   (approving it or not), run the `retro` skill on that project when it is
-  installed: an escalation the owner waves through is how the escalation
-  policy learns.
+  installed, in its unattended mode: it comments `Retro:` on the issue and
+  proposes any rule change, including to `.agents/escalation.md`, as a pull
+  request the owner merges or closes. An escalation the owner waves through
+  is how the escalation policy learns; the merged pull requests and the
+  repository's `.agents/retro.jsonl` are the history of what it learned.

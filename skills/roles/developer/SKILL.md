@@ -40,7 +40,13 @@ All of these, or the work is not done:
 1. The issue's own verification passes, run by you, with the output kept.
 2. The project's required checks pass locally (tests, lint, type checks).
 3. A pull request is open: what changed and why, the issue link, the commands
-   you ran with their results, and anything deliberately left out.
+   you ran with their results, and anything deliberately left out. Add a
+   `Decisions` section for every choice a reader could question (approach,
+   library, data shape, an edge case handled one way rather than another):
+   the options you weighed, the one you took, and why, one or two lines
+   each. A reviewer or the owner reading the pull request months later should
+   not have to guess why it looks the way it does; skip the section only when
+   there was nothing to choose.
 4. CI is green on the head commit you pushed. If CI fails, fix it or stop.
 
 Hand the pull request to the `reviewer` role; the `approver` decides the
