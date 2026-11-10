@@ -34,7 +34,7 @@ for anything missing and offer to save it.
 | Ready | approved to build | you, only on the owner's go |
 | Building | a developer is on it | you, when you start one |
 | Review | pull request open | you, on `STATUS: READY` |
-| Blocked | waits on the owner or on another issue | you, on any 🙋 line or `Blocked by #N` |
+| Blocked | waits on the owner | you, on any 🙋 line or a blocking first line |
 | Done | merged or closed | you, on `APPROVE` and a merged PR |
 
 Use `gh project item-list`, `item-add` and `item-edit` against the configured
@@ -84,6 +84,9 @@ Add it to Backlog. Never move it to Ready yourself: the owner's explicit go
 ("go on #42", or dragging the card) is the one approval in the loop.
 
 ## 2. Dispatch
+
+A Ready card whose `Blocked by #N` issue is still open stays in Ready and is
+not started; it does not move to Blocked, which is only for the owner.
 
 On each pass, for every Ready card whose `Blocked by #N` issues are all
 closed, up to `max_parallel` running at once: move it to Building and start
