@@ -18,6 +18,7 @@ import argparse
 import json
 import os
 import secrets
+import stat
 import sqlite3
 import subprocess
 import sys
@@ -87,8 +88,15 @@ def ledger_path():
                 raise LedgerError(f'{cfg}: "ledger" must be a string path')
             return Path(value).expanduser()
     top = _git("rev-parse", "--show-toplevel")
-    if top and (Path(top) / REPO_LEDGER).is_file():
-        return Path(top) / REPO_LEDGER
+    if top:
+        candidate = Path(top) / REPO_LEDGER
+        if candidate.is_file():
+            root = Path(top).resolve()
+            if candidate.is_symlink() or root not in candidate.resolve().parents:
+                raise LedgerError(
+                    f"{candidate} is a link or leaves the repository; refusing it"
+                )
+            return candidate
     return _env_dir("XDG_STATE_HOME", ".local/state") / "retro" / "ledger.sqlite"
 
 
@@ -120,7 +128,12 @@ def jsonl_rows():
 def jsonl_append(entry):
     path = ledger_path()
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as handle:
+    flags = os.O_WRONLY | os.O_APPEND | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0)
+    fd = os.open(path, flags, 0o644)
+    if not stat.S_ISREG(os.fstat(fd).st_mode):
+        os.close(fd)
+        raise LedgerError(f"{path} is not a regular file")
+    with os.fdopen(fd, "a", encoding="utf-8") as handle:
         handle.write(json.dumps(entry, ensure_ascii=False, sort_keys=False) + "\n")
 
 

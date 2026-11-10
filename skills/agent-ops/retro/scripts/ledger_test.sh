@@ -84,4 +84,13 @@ git -C "$tmp/repo" init -q
 [ "$(cd "$tmp/repo" && env -u RETRO_LEDGER python3 -I "$ledger" path)" \
   = "$(cd "$tmp/repo" && pwd -P)/.agents/retro.jsonl" ] || fail "repo ledger default"
 
+# A planted link must never redirect writes outside the repository.
+mkdir -p "$tmp/evil/.agents" && git -C "$tmp/evil" init -q
+printf 'keep\n' >"$tmp/victim"
+ln -s "$tmp/victim" "$tmp/evil/.agents/retro.jsonl"
+if (cd "$tmp/evil" && env -u RETRO_LEDGER python3 -I "$ledger" add --project p --goal achieved) >/dev/null 2>&1; then
+  fail "symlinked repo ledger accepted"
+fi
+[ "$(cat "$tmp/victim")" = "keep" ] || fail "symlink target was written"
+
 echo "ledger_test: ok"
