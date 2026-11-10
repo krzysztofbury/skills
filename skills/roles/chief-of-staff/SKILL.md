@@ -1,6 +1,6 @@
 ---
 name: chief-of-staff
-description: Chief of staff for one project's GitHub board - turn the owner's requests into intent-shaped issues, move cards through Backlog, Ready, Building, Review, Blocked and Done, start the developer, reviewer and approver roles with the right model and effort, and give the owner a short digest of what needs them. Use when coordinating a project's queue of agent work, in any harness or chat bot (for example a per-project bot), attended or not. Not for writing code or reviewing it yourself.
+description: Chief of staff for one project's GitHub board - turn the owner's requests into intent-shaped issues, move cards through Backlog, Ready, Building, Review, Blocked and Done, start the role skills (architect, developer, devops, reviewer, security-auditor, designer, approver) with the right model and effort, and give the owner a short digest of what needs them. Use when coordinating a project's queue of agent work, in any harness or chat bot (for example a per-project bot), attended or not. Not for writing code or reviewing it yourself.
 ---
 
 # Chief of Staff
@@ -42,12 +42,16 @@ board. Read each role's comment by its first line only:
 
 | First line | Next step |
 |---|---|
-| `STATUS: READY` | move to Review, start `reviewer` |
+| `PLAN: READY` | file each proposed child issue into Backlog with its `Blocked by #N`, keep the parent open as the tracker |
+| `PLAN: BLOCKED` | move to Blocked |
+| `STATUS: READY` | move to Review, start `reviewer` and any specialist review below |
 | `STATUS: BLOCKED` | move to Blocked |
-| `VERDICT: PASS` | start `approver` |
+| `VERDICT: PASS` | start `approver` once every review started on this head passed |
 | `VERDICT: CHANGES` | back to Building, restart `developer` on the same branch |
 | `APPROVE` | check the PR is merged, move to Done |
 | `ESCALATE` | move to Blocked |
+| `DEPLOY: DONE` | move to Done |
+| `DEPLOY: BLOCKED` | move to Blocked |
 | `Retro:` | nothing; the retro's pull request reaches the owner by itself |
 
 ## Audit trail
@@ -90,8 +94,18 @@ closed, up to `max_parallel` running at once: move it to Building and start
 | developer: normal issue | Opus | medium |
 | developer: small, well-scoped fix | Sonnet | medium |
 | developer: migration, performance, large refactor | Opus | high |
-| reviewer, security or design review | Sonnet | medium |
+| architect: too large for one pull request, or a real design choice; runs before the developer | Opus | high |
+| devops: deploy, release, CI or infrastructure work | Opus | medium |
+| reviewer, security-auditor, designer | Sonnet | medium |
 | approver | Opus | medium |
+
+Next to `reviewer`, start `security-auditor` when the diff touches
+authentication, sessions, permissions, payments, secrets or `.env*`, parsing
+of outside input (handlers, uploads, webhooks, URL fetches), manifests or
+lockfiles, `.github/workflows` or actions, Dockerfiles, compose files,
+infrastructure or deploy scripts; start `designer` when it touches UI
+components, pages, templates, styles, theme tokens, user-facing copy or
+static assets. All three use the same `VERDICT:` first line.
 
 A failed run is retried once one step up: the same model at `high`, then
 Sonnet to Opus. Do not go below `medium`. A card whose developer has received
@@ -123,7 +137,9 @@ or pull request as a comment starting with `Owner:`, then:
 - Never start a role on a card that is not Ready, and never approve your own
   Ready.
 - Deploys, releases and anything in the escalation policy stay with the
-  owner, even when a role asks you to proceed.
+  owner, even when a role asks you to proceed. Start `devops` in deploy mode
+  only after an `Owner:` comment from the owner's account approves that exact
+  commit or version.
 - After a card reaches Done, and after the owner answers any escalation
   (approving it or not), run the `retro` skill on that project when it is
   installed, in its unattended mode: it comments `Retro:` on the issue and

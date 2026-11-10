@@ -14,11 +14,22 @@ section for that version becomes the GitHub release notes. See
   from each role's first line, starts roles with Opus or Sonnet at medium or
   high effort, retries a failure one step up, and sends a short digest. Only
   the owner's go moves a card to Ready. Ships the intent patterns reference.
+  Every card move and run is explained in a `CoS:` comment on the issue.
+- `architect`, `devops`, `security-auditor` and `designer` roles. Architect
+  returns a decision record and child issues (`PLAN:`); devops deploys only
+  on the owner's approval of the exact commit (`DEPLOY:`); the two specialist
+  reviewers use the reviewer's `VERDICT:` format.
+- `retro` keeps its ledger in the repository as `.agents/retro.jsonl` when
+  that file exists (JSON Lines, `--refs` to issues and pull requests), and in
+  unattended runs posts a `Retro:` comment and proposes changes as a pull
+  request instead of editing.
 
 ### Changed
 
 - `approver` counts an `Owner:` comment as the decision on an escalation only
   when the repository owner's account wrote it.
+- `developer` adds a `Decisions` section to the pull request: options
+  weighed, the choice and why.
 
 ## [2.3.0] - 2026-11-10
 
