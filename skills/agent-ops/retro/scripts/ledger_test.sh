@@ -65,4 +65,32 @@ rm "$XDG_CONFIG_HOME/retro/config.json"
 [ "$(env -u RETRO_LEDGER XDG_STATE_HOME="$tmp/state" python3 -I "$ledger" path)" \
   = "$tmp/state/retro/ledger.sqlite" ] || fail "XDG_STATE_HOME default"
 
+# JSON Lines backend: same commands, entries kept one per line.
+export RETRO_LEDGER="$tmp/repo/.agents/retro.jsonl"
+[ "$(run list --json | json_len)" = "0" ] || fail "jsonl list on a missing file"
+[ ! -e "$tmp/repo" ] || fail "jsonl read created the directory"
+jid="$(run add --project proj-a --goal partial --friction "stale PR head merged" \
+  --changes "none" --refs "owner/repo#12")"
+[ "${#jid}" = "8" ] || fail "jsonl id was '$jid'"
+run add --project proj-b --goal achieved --candidates "Stale PR x2" >/dev/null
+[ "$(wc -l <"$RETRO_LEDGER" | tr -d ' ')" = "2" ] || fail "jsonl not one line per entry"
+[ "$(run list --json | json_len)" = "2" ] || fail "jsonl list"
+[ "$(run list --project proj-a --json | json_field 0 refs)" = "owner/repo#12" ] || fail "jsonl refs"
+[ "$(run search STALE --json | json_len)" = "2" ] || fail "jsonl case-insensitive search"
+run search stale | tail -n 1 | grep -qx "matches: 2" || fail "jsonl search footer"
+
+# In a git repository with .agents/retro.jsonl, that file is the default.
+git -C "$tmp/repo" init -q
+[ "$(cd "$tmp/repo" && env -u RETRO_LEDGER python3 -I "$ledger" path)" \
+  = "$(cd "$tmp/repo" && pwd -P)/.agents/retro.jsonl" ] || fail "repo ledger default"
+
+# A planted link must never redirect writes outside the repository.
+mkdir -p "$tmp/evil/.agents" && git -C "$tmp/evil" init -q
+printf 'keep\n' >"$tmp/victim"
+ln -s "$tmp/victim" "$tmp/evil/.agents/retro.jsonl"
+if (cd "$tmp/evil" && env -u RETRO_LEDGER python3 -I "$ledger" add --project p --goal achieved) >/dev/null 2>&1; then
+  fail "symlinked repo ledger accepted"
+fi
+[ "$(cat "$tmp/victim")" = "keep" ] || fail "symlink target was written"
+
 echo "ledger_test: ok"

@@ -1,6 +1,6 @@
 ---
 name: retro
-description: Review a finished session and propose improvements to the project's agent instructions, skills, checklists and harness configuration, then record the outcome in a local SQLite ledger unless the user asks not to (a retro without recording is still this skill). Use for an explicit /retro or a request to improve the working process after a session, not for an ordinary session summary or sign-off.
+description: Review a finished session or agent run and propose improvements to the project's agent instructions, skills, checklists, escalation policy and harness configuration, then record the outcome in the project's retro ledger unless the user asks not to (a retro without recording is still this skill). Use for an explicit /retro, a request to improve the working process after a session, or a coordinator's retro after an issue is done or an escalation is answered; not for an ordinary session summary or sign-off.
 ---
 
 # Retro
@@ -17,7 +17,7 @@ be configured; the settings below only change where things are stored.
 
 | Setting | How to set it | Default |
 |---|---|---|
-| Ledger database | env `RETRO_LEDGER`, then key `ledger` in `~/.config/retro/config.json` | `${XDG_STATE_HOME:-~/.local/state}/retro/ledger.sqlite` |
+| Ledger | env `RETRO_LEDGER`, then key `ledger` in `~/.config/retro/config.json`, then `.agents/retro.jsonl` in the current repository if that file exists | `${XDG_STATE_HOME:-~/.local/state}/retro/ledger.sqlite` |
 | Knowledge inbox | key `knowledge_inbox` in `~/.config/retro/config.json` | none; durable knowledge goes to project docs |
 
 The config file lives under `${XDG_CONFIG_HOME:-~/.config}`. Example:
@@ -29,19 +29,27 @@ The config file lives under `${XDG_CONFIG_HOME:-~/.config}`. Example:
 }
 ```
 
-Keep the ledger outside public or shared repositories. It may hold project
-names and remote URLs.
+A ledger path ending in `.jsonl` is a JSON Lines file with one entry per
+line; any other path is SQLite. A project that wants its learning history
+reviewable keeps `.agents/retro.jsonl` in the repository: each entry is
+committed with the change it describes, and the line
+`.agents/retro.jsonl merge=union` in `.gitattributes` lets parallel branches
+append without merge conflicts. In a public repository, entries describe the
+process only: no personal data, credentials or private context. Keep a ledger
+with private notes outside public or shared repositories.
 
 ### Ledger script
 
 All ledger access goes through `scripts/ledger.py` in this skill's directory.
+It handles both formats the same way.
 It needs only Python 3 and its standard library. `add` creates the database
 and its parent directory on first use; `list`, `search` and `path` only read
 and never create anything. Never write SQL by hand against the ledger.
 
 ```bash
 python3 -I scripts/ledger.py add --goal partial --harness codex \
-  --helped "..." --friction "..." --changes "..." --candidates "..."
+  --helped "..." --friction "..." --changes "..." --candidates "..." \
+  --refs "owner/repo#42"
 python3 -I scripts/ledger.py list [--project ID] [--limit N] [--json]
 python3 -I scripts/ledger.py search PATTERN [--project ID] [--json]
 python3 -I scripts/ledger.py path    # print the resolved database path
@@ -55,8 +63,10 @@ python3 -I scripts/ledger.py path    # print the resolved database path
 - `search` is a case-insensitive substring match over `friction`, `changes`
   and `candidates`; text output ends with `matches: N`.
 
-Table `entries`: `id`, `created_at` (ISO 8601 UTC), `project`, `harness`,
-`goal`, `helped`, `friction`, `changes`, `candidates`.
+Entry fields: `id` (a number in SQLite, a short random hex string in JSON
+Lines so parallel branches never collide), `created_at` (ISO 8601 UTC),
+`project`, `harness`, `goal`, `helped`, `friction`, `changes`, `candidates`,
+`refs`.
 
 Run the script with the skill directory as the base path; harnesses install
 skills in different places. Test: `bash scripts/ledger_test.sh`.
@@ -103,6 +113,24 @@ generated or installed from another source, change the source and say so.
 If the user asks for a retro without recording, skip step 6 and the ledger
 entirely; the table is the result.
 
+## Unattended runs
+
+When a coordinator starts the retro and nobody can approve in the session,
+approval moves to GitHub so every lesson stays reviewable:
+
+1. Post the table as one comment on the issue or pull request the run was
+   about. Its first line is exactly `Retro:`.
+2. Change nothing directly. Put the proposed edits, including any change to
+   `.agents/escalation.md`, together with the new ledger entry, on one branch
+   and open a pull request that links the issue. The owner's merge is the
+   approval; closing it is a rejection, and the next retro may cite that.
+3. With nothing to propose, still append the ledger entry (`--changes none`)
+   in a pull request that only adds that line, or skip it when the project
+   has no repository ledger.
+
+Pass `--refs` with the issue and pull request links so a later reader can go
+from any ledger line to the discussion behind it.
+
 ## Two-occurrence rule
 
 Before proposing a new skill or checklist, search the ledger for the same
@@ -131,6 +159,7 @@ ledger keeps the decision history.
 | `--friction` | problem and confirmed cause, or a labeled hypothesis |
 | `--changes` | files actually changed and rules retired, or `none`; add a review date or trigger for changed rules |
 | `--candidates` | pattern and occurrence count, for example `stale PR head merged x1`, or `none` |
+| `--refs` | issue and pull request links the entry is about, when there are any |
 
 Use short, searchable wording for patterns so a later `search` finds them.
 
