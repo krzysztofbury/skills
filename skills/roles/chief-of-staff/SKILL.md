@@ -81,14 +81,22 @@ Anti-goals, and the Ask. If the owner cannot say how to tell it is done, ask
 before filing; an issue without a check becomes a blocked card later.
 
 Add it to Backlog. Never move it to Ready yourself: the owner's explicit go
-("go on #42", or dragging the card) is the one approval in the loop.
+is the one approval in the loop. A go is the owner saying "go on #42" in
+this chat, dragging the card, or a `go` label on the issue added by the
+owner's account (`gh api repos/{owner}/{repo}/issues/{n}/events`, the
+`labeled` event's `actor.login`). On a valid `go` label, move the card to
+Ready, remove the label and say so in your `CoS:` note; ignore one added by
+anyone else. When you are the chat side and cannot move cards, adding the
+`go` label on the owner's word is how you pass the go on.
 
 ## 2. Dispatch
 
 A Ready card whose `Blocked by #N` issue is still open stays in Ready and is
 not started; it does not move to Blocked, which is only for the owner.
 
-On each pass, for every Ready card whose `Blocked by #N` issues are all
+Count live runs with the runner when it supports it
+(`agent-run running <repo>`), so a pass never exceeds `max_parallel`. On each
+pass, for every Ready card whose `Blocked by #N` issues are all
 closed, up to `max_parallel` running at once: move it to Building and start
 `developer`. Choose the model and effort:
 
