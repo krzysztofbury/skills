@@ -5,6 +5,25 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.0.0] - 2026-11-13
+
+### Changed
+
+- The role skills move from `skills/roles/` to `skills/engineering/`, next to
+  `mcp-doctor`, `pg-performance-advisor` and `sentry-observability`. Skill
+  names do not change; rerun the installer to relink them.
+- `reviewer` judges correctness by its own review method
+  (`references/review-method.md`, with the optional TigerStyle profile) and
+  tests by `references/test-audit.md`; `developer` follows
+  `references/test-audit.md` and `references/debugging-and-design.md`.
+
+### Removed
+
+- `pair-programmer`, `test-audit` and `sdlc-evaluator`. Their review,
+  debugging and test methods live on as references of `reviewer` and
+  `developer` (test-audit keeps its upstream MIT notice). Replace references
+  to them in your own agent instructions with the role skills.
+
 ## [3.0.0] - 2026-11-13
 
 ### Changed

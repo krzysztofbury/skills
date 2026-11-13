@@ -69,7 +69,7 @@ copying them:
 
 - `{ "source": "self" }` is this repository's `skills/`.
 - `path` is a directory of skill directories. A skill may also sit one level
-  down in a group folder (`skills/engineering/test-audit`); it is installed
+  down in a group folder (`skills/engineering/developer`); it is installed
   under its own name, and a name found twice in one source is an error. `~`
   expands to your home; a relative path resolves against the sources file.
 - `git` is `owner/repo` on GitHub or any git URL. `commit` must be a full

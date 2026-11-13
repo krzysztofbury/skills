@@ -28,7 +28,9 @@ report they will read.
   test them. Work outside the intent (refactoring unrelated code, extra
   features) goes into the pull request as a suggestion, not into the diff.
 - Follow the project's style. A behavior change ships with its tests in the
-  same pull request; for Python or SQL tests, apply the `test-audit` skill.
+  same pull request; for Python or SQL tests, follow
+  [the test audit](references/test-audit.md). When something fails or the
+  design is open, work by [debugging and design](references/debugging-and-design.md).
 - Never print, log or commit a secret, and never read production data.
 - Do not edit CI workflows, rulesets, infrastructure or deploy scripts unless
   the issue says so; that work needs the owner's go.

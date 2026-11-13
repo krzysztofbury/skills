@@ -1,9 +1,4 @@
----
-name: test-audit
-description: Use when writing, adding, changing, reviewing, or pruning Python (pytest, unittest) or SQL tests, including a regression test for a bug, a test plan for a database migration, or deciding whether an existing test is worth keeping. Checks whether tests protect real behavior without duplicating stronger proof or requiring test-only production code.
----
-
-# Test Audit - Python and SQL
+# Test audit: Python and SQL
 
 Use the same evidence bar when writing a test and when deciding whether an
 existing test should stay. Prefer confidence in behavior over test count or
