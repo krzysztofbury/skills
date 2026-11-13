@@ -5,6 +5,15 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [2.4.2] - 2026-11-13
+
+### Changed
+
+- `chief-of-staff`: Sonnet runs at `high` effort (small developer fixes,
+  reviewer, security-auditor, designer); Opus stays at `medium` unless its
+  row says `high`. A failed run steps up from Sonnet `high` to Opus `medium`,
+  then to Opus `high`.
+
 ## [2.4.0] - 2026-11-10
 
 ### Added
