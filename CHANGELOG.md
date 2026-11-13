@@ -5,6 +5,16 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [2.5.0] - 2026-11-13
+
+### Changed
+
+- `chief-of-staff`: roles are started on a tier (`light`, `standard`,
+  `heavy`) instead of a named model; the runner maps each tier to a provider,
+  model and effort from its own configuration, so models change without
+  editing the skill. Without one, `light` is Sonnet at `high`, `standard` Opus
+  at `medium` and `heavy` Opus at `high`. A failed run is retried one tier up.
+
 ## [2.4.2] - 2026-11-13
 
 ### Changed
