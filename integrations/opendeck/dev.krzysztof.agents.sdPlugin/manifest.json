@@ -12,7 +12,7 @@
       "Name": "Agent Session",
       "UUID": "dev.krzysztof.agents.session",
       "States": [{ "Image": "icons/session" }],
-      "Tooltip": "Show and focus a Herdr agent session"
+      "Tooltip": "Show and focus a Herdr app agent"
     },
     {
       "Icon": "icons/quota",
@@ -40,10 +40,10 @@
   "Category": "Agents",
   "CategoryIcon": "icons/agents",
   "CodePath": "plugin.js",
-  "Description": "Herdr agent state, Codex or Claude quota, token activity, and a Run Command key for OpenDeck",
+  "Description": "Herdr app agent state, Codex or Claude quota, token activity, and a Run Command key for OpenDeck",
   "Icon": "icons/agents",
   "Name": "Agents",
   "OS": [{ "Platform": "linux", "MinimumVersion": "1.0" }],
   "Software": { "MinimumVersion": "2.14" },
-  "Version": "1.0.0"
+  "Version": "2.0.0"
 }

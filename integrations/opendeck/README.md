@@ -3,8 +3,8 @@
 **A physical AI-agent dashboard, built on [OpenDeck](https://github.com/nekename/OpenDeck)
 and used on [Omarchy](https://github.com/basecamp/omarchy) 4.**
 This is the actual 15-key Elgato Stream Deck MK.2 Agents page, not a generic
-deck layout. The OpenDeck plugin draws live status; Herdr supplies agent state
-and pane focus; Codex and OpenCode supply their own local metrics. Omarchy
+deck layout. The OpenDeck plugin draws live status; the [Herdr](https://herdr.dev)
+app and its terminal runtime, herdr-core, supply agent state and focus; Codex and OpenCode supply their own local metrics. Omarchy
 provides the surrounding Linux desktop workflow. Quota and activity keys can
 instead read Claude usage from the record Omarchy's agents panel keeps (see
 [Claude usage from Omarchy](#claude-usage-from-omarchy)); only those keys call
@@ -26,20 +26,24 @@ the working layout.
 | Position | Key | What it does |
 | --- | --- | --- |
 | 0 | Back | Switch to the `Default` OpenDeck profile. |
-| 1 | Agent Pulse | Show the most urgent Herdr state; press to focus the highest-priority pane. |
+| 1 | Agent Pulse | Show the most urgent agent state; press to focus that agent in the Herdr app. |
 | 2 | Codex Quota | Remaining allowance for the 5-hour and 7-day windows; press to refresh. |
 | 3 | OpenCode 24H | Root-session token activity in the last 24 hours. |
 | 4 | OpenCode 7D | Root-session token activity in the last 168 hours. |
-| 5-14 | Agent Session 0-9 | Ten stable Herdr pane slots; press to focus that pane. |
+| 5-14 | Agent Session 0-9 | Ten stable agent slots; press to focus that agent in the Herdr app. |
 
-Herdr states appear red for blocked, amber for working, green for completed and
-unreviewed, blue for idle or focused, and grey for empty or offline. Pulse
-prioritizes blocked, then completed, working, and idle sessions. Slot positions
-stay fixed while the plugin runs; they are not persisted between restarts.
+Agent states appear red for blocked or error, amber for working, green for
+completed and unreviewed, blue for idle, and grey for empty or offline. Pulse
+prioritizes blocked and error, then completed, working, and idle agents. An
+agent is a live herdr-core terminal whose program reports a status; agents that
+another agent started (sub-agents) are left out, so helpers do not reshuffle
+the slots. A session key shows its Herdr app tab name, then the space and the
+terminal address. New agents fill free slots in start order; slot positions
+stay fixed while the plugin runs and are not persisted between restarts.
 
 The surrounding Omarchy setup puts an `Agents` Switch Profile key in position 7
 of `Default`, linking to `Agents/Home`. Position 8 holds a Run Command key that
-toggles a meeting camera helper, and position 9 is empty; the bottom row has
+is empty, and position 9 is empty; the bottom row has
 system gauges. Other OpenDeck profiles in the setup control Hyprland's
 master layout, Omarchy's screenshot/OCR tools, media over MPRIS, and OBS. The
 Agents page here is the only profile published by this integration; those
@@ -49,13 +53,13 @@ other keys depend on separate plugins, commands, and local device settings.
 
 | Key | Local source | Refresh while visible |
 | --- | --- | --- |
-| Pulse and sessions | Herdr Unix socket at `~/.config/herdr/herdr.sock`; `session.snapshot` and `agent.focus` | 2 seconds |
+| Pulse and sessions | herdr-core JSON-RPC socket at `$XDG_RUNTIME_DIR/herdr-core/default.sock` (`terminal.list`); a press runs `herdr-app do agent.focus --terminal <address>` | 2 seconds |
 | Quota | `codex app-server --stdio` with `CODEX_HOME=~/.codex` | 5 minutes (press to force refresh) |
 | Activity | Read-only `~/.local/share/opencode/opencode.db` | 60 seconds (press to refresh) |
 | Quota and activity with `source: "claude"` | Omarchy's `~/.local/state/omarchy/agents/usage/claude.json` | 30 seconds (press to ask Omarchy to rewrite it) |
 | Run Command with `statusArgs` | The configured command's stdout and exit status | `intervalSeconds`, default 5 seconds |
 
-The plugin also accepts `HERDR_SOCKET` and `OPENCODE_DB` environment variables.
+The plugin also accepts `HC_SOCKET` and `OPENCODE_DB` environment variables.
 The quota key accepts `codexExecutable`, `codexHome`, and `refreshMinutes` in its
 OpenDeck action settings. It does not read or publish conversation content:
 the activity query sums input, output, and reasoning tokens for root sessions
@@ -170,8 +174,10 @@ OpenDeck's bundled Starter Pack also has a Run Command action. That one runs
 its command through `sh -c` and can only change the key's title text; this one
 runs without a shell and draws its own status image.
 
-**Herdr is required for the pulse and session keys.** Without its socket, those
-keys show `OFFLINE`; quota and activity still use their independent sources.
+**The Herdr app is required for the pulse and session keys.** Without the
+herdr-core socket those keys show `OFFLINE`, and without `herdr-app` (on PATH or
+in `~/.local/bin`) a press shows the alert mark. The Herdr TUI (`herdr`) is no
+longer supported; plugin 1.x used its socket. Quota and activity still use their independent sources.
 Codex quota needs a signed-in Codex CLI, and OpenCode activity needs a populated
 local database.
 
@@ -180,12 +186,13 @@ local database.
 The instructions assume OpenDeck is installed (`opendeck` on Arch), the
 [Stream Deck udev rules](https://github.com/OpenActionAPI/rust-elgato-streamdeck/blob/main/40-streamdeck.rules)
 are installed, and a 15-key MK.2 is connected. For the live keys, this setup
-also uses a running Herdr server with its OpenCode integration, a signed-in
+also uses a running Herdr app, a signed-in
 Codex CLI, and OpenCode's local database. Check those locally:
 
 ```bash
 node -e "require('node:sqlite')"   # Node 22.13+ (22.x) or 23.4+
-test -S "$HOME/.config/herdr/herdr.sock"
+test -S "$XDG_RUNTIME_DIR/herdr-core/default.sock"
+command -v herdr-app || test -x "$HOME/.local/bin/herdr-app"
 codex login status
 test -r "$HOME/.local/share/opencode/opencode.db"
 ```
@@ -227,13 +234,13 @@ credentials are bundled; the Codex quota key uses the local CLI sign-in.
 
 Run `npm test` in `integrations/opendeck/dev.krzysztof.agents.sdPlugin` to
 exercise slot assignment, quota parsing and cached-failure runtime behavior,
-a Herdr socket round-trip, the local OpenCode SQL query, Claude record parsing
+agent selection from herdr-core terminals, a herdr-core socket round-trip, the local OpenCode SQL query, Claude record parsing
 and refresh, the Run Command key (argument passing without a shell, lookup,
 timeouts, status parsing, and a press-and-poll runtime cycle), and the 15-key
 profile. The runtime tests use local fixtures and a simulated OpenDeck
 transport; they make no provider requests. On the physical deck, open the
 Agents page, confirm the status images update, press Pulse or a session key to
-focus a real pane, press Quota to refresh it, and compare the activity keys to
+focus a real agent, press Quota to refresh it, and compare the activity keys to
 your local OpenCode usage. A passing test run alone does not verify a real
 OpenDeck, Herdr, Codex, and Omarchy session.
 

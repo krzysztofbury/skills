@@ -16,6 +16,7 @@ const ACTIONS = Object.freeze({
 
 const COLORS = Object.freeze({
   blocked: '#ef4444',
+  error: '#ef4444',
   working: '#f59e0b',
   done: '#22c55e',
   idle: '#3b82f6',
@@ -101,16 +102,12 @@ function compactNumber(value) {
 }
 
 function statusPriority(agent) {
-  const rank = { blocked: 0, done: 1, working: 2, idle: 3, unknown: 4 };
+  const rank = { blocked: 0, error: 0, done: 1, working: 2, idle: 3, unknown: 4 };
   return rank[agent?.agent_status] ?? 4;
 }
 
 function agentIdentity(agent) {
-  return agent?.pane_id
-    || [agent?.agent_session?.source, agent?.agent_session?.agent, agent?.agent_session?.kind, agent?.agent_session?.value]
-      .filter(Boolean)
-      .join(':')
-    || agent?.terminal_id;
+  return agent?.address;
 }
 
 function reconcileAgentSlots(agents, existingSlots = slotIds) {
@@ -119,11 +116,7 @@ function reconcileAgentSlots(agents, existingSlots = slotIds) {
   const assigned = new Set(next.filter(Boolean));
   const additions = agents
     .filter((agent) => !assigned.has(agentIdentity(agent)))
-    .sort((left, right) => {
-      const leftTab = Number.parseInt(left.tab_id?.split('t').at(-1), 16);
-      const rightTab = Number.parseInt(right.tab_id?.split('t').at(-1), 16);
-      return (leftTab || 0) - (rightTab || 0);
-    });
+    .sort((left, right) => (left.created_ms || 0) - (right.created_ms || 0));
 
   for (const agent of additions) {
     const freeSlot = next.indexOf(null);
@@ -137,30 +130,45 @@ function highestPriorityAgent(agents) {
   return [...agents].sort((left, right) => {
     const priority = statusPriority(left) - statusPriority(right);
     if (priority !== 0) return priority;
-    return (right.state_change_seq || 0) - (left.state_change_seq || 0);
+    return (right.status_ms || 0) - (left.status_ms || 0);
   })[0];
 }
 
-function tabLabel(agent, snapshot) {
-  const tab = snapshot?.tabs?.find((candidate) => candidate.tab_id === agent.tab_id);
-  return tab?.label || agent.name || agent.display_agent || agent.agent || 'Agent';
-}
+const AGENT_STATUSES = new Set(['working', 'blocked', 'idle', 'done', 'error']);
 
-function decorateAgents(snapshot) {
-  return (snapshot?.agents || []).map((agent) => ({
-    ...agent,
-    displayLabel: tabLabel(agent, snapshot),
-  }));
+// Turns a herdr-core `terminal.list` result into the agents the keys show.
+// An agent is a live terminal whose program reports a status. Sub-agents
+// (terminals another agent started) are left out, so a session starting
+// helpers does not reshuffle the session keys. The Herdr app labels the
+// terminals it starts with `where` = "<space> / <tab>".
+function agentsFromTerminals(result) {
+  return (result?.terminals || [])
+    .filter((terminal) => terminal?.state === 'live' && terminal.status && !terminal.parent && terminal.address)
+    .map((terminal) => {
+      const [space, ...tab] = String(terminal.labels?.where || '').split(' / ');
+      const program = terminal.status.app || terminal.foreground?.name || 'agent';
+      const state = String(terminal.status.state || '').toLowerCase();
+      return {
+        address: terminal.address,
+        agent: program,
+        agent_status: AGENT_STATUSES.has(state) ? state : 'unknown',
+        created_ms: terminal.created_ms || 0,
+        status_ms: terminal.status_ms || 0,
+        space: tab.length ? space : '',
+        displayLabel: tab.join(' / ') || terminal.name || program,
+      };
+    });
 }
 
 function renderPulse(agents, online) {
   if (!online) {
-    return renderCard({ accent: COLORS.offline, title: 'HERDR', main: 'OFFLINE', footer: 'socket unavailable' });
+    return renderCard({ accent: COLORS.offline, title: 'HERDR', main: 'OFFLINE', footer: 'herdr-core unavailable' });
   }
-  const counts = Object.fromEntries(['blocked', 'working', 'done', 'idle', 'unknown'].map((status) => [
+  const counts = Object.fromEntries(['blocked', 'error', 'working', 'done', 'idle', 'unknown'].map((status) => [
     status,
     agents.filter((agent) => agent.agent_status === status).length,
   ]));
+  counts.blocked += counts.error;
   let accent = COLORS.offline;
   let main = 'NO AGENTS';
   if (!agents.length) {
@@ -201,8 +209,7 @@ function renderSession(agent, online) {
     accent: COLORS[status] || COLORS.unknown,
     title: truncate(agent.displayLabel, 13).toUpperCase(),
     main: status.toUpperCase(),
-    footer: `${agent.agent || 'agent'} | ${agent.pane_id}`,
-    focused: Boolean(agent.focused),
+    footer: `${agent.space || agent.agent || 'agent'} | ${agent.address}`,
   });
 }
 
@@ -427,14 +434,23 @@ function usesClaudeSource(instance) {
   return String(instance?.settings?.source || '').toLowerCase() === 'claude';
 }
 
-function requestHerdr(method, params = {}, timeoutMs = 2000) {
-  const socketPath = process.env.HERDR_SOCKET || path.join(os.homedir(), '.config/herdr/herdr.sock');
+function coreSocketPath(environment = process.env) {
+  if (environment.HC_SOCKET) return environment.HC_SOCKET;
+  const runtime = environment.XDG_RUNTIME_DIR || `/run/user/${process.getuid()}`;
+  return path.join(runtime, 'herdr-core/default.sock');
+}
+
+// One JSON-RPC 2.0 request per connection, one message per line, on the
+// herdr-core socket. Only the method name reaches the logs: results carry
+// command lines that can include agent session ids.
+function requestCore(method, params = {}, timeoutMs = 2000) {
+  const socketPath = coreSocketPath();
   return new Promise((resolve, reject) => {
     const id = `streamdeck-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const socket = net.createConnection(socketPath);
     let buffer = '';
     let settled = false;
-    const timer = setTimeout(() => finish(new Error(`Herdr ${method} timed out`)), timeoutMs);
+    const timer = setTimeout(() => finish(new Error(`herdr-core ${method} timed out`)), timeoutMs);
 
     function finish(error, value) {
       if (settled) return;
@@ -446,7 +462,7 @@ function requestHerdr(method, params = {}, timeoutMs = 2000) {
     }
 
     socket.setEncoding('utf8');
-    socket.on('connect', () => socket.write(`${JSON.stringify({ id, method, params })}\n`));
+    socket.on('connect', () => socket.write(`${JSON.stringify({ jsonrpc: '2.0', id, method, params })}\n`));
     socket.on('data', (chunk) => {
       buffer += chunk;
       const lines = buffer.split('\n');
@@ -456,17 +472,17 @@ function requestHerdr(method, params = {}, timeoutMs = 2000) {
         let response;
         try {
           response = JSON.parse(line);
-        } catch (error) {
-          finish(error);
+        } catch {
+          finish(new Error(`herdr-core ${method} sent invalid JSON`));
           return;
         }
         if (response.id !== id) continue;
-        if (response.error) finish(new Error(response.error.message || JSON.stringify(response.error)));
+        if (response.error) finish(new Error(`herdr-core ${method} failed: ${response.error.data?.kind || response.error.code || 'error'}`));
         else finish(null, response.result);
       }
     });
     socket.on('error', finish);
-    socket.on('end', () => finish(new Error('Herdr closed the socket before replying')));
+    socket.on('end', () => finish(new Error('herdr-core closed the socket before replying')));
   });
 }
 
@@ -733,8 +749,7 @@ async function refreshHerdr() {
   if (herdrRefreshPending || ![...contexts.values()].some((instance) => instance.action === ACTIONS.pulse || instance.action === ACTIONS.session)) return;
   herdrRefreshPending = true;
   try {
-    const result = await requestHerdr('session.snapshot');
-    latestAgents = decorateAgents(result.snapshot);
+    latestAgents = agentsFromTerminals(await requestCore('terminal.list'));
     const reconciled = reconcileAgentSlots(latestAgents);
     slotIds.splice(0, slotIds.length, ...reconciled);
     herdrOnline = true;
@@ -904,17 +919,18 @@ function refreshCommands(now = Date.now()) {
   }
 }
 
+// The Herdr app owns spaces, tabs and focus; herdr-core only runs terminals.
 async function focusAgent(context, agent) {
-  if (!agent?.pane_id) {
+  if (!agent?.address) {
     showFeedback('showAlert', context);
     return;
   }
-  try {
-    await requestHerdr('agent.focus', { target: agent.pane_id });
+  const result = await runCommand('herdr-app', ['do', 'agent.focus', '--terminal', agent.address], { timeoutMs: 5000 });
+  if (result.code === 0) {
     showFeedback('showOk', context);
     await refreshHerdr();
-  } catch (error) {
-    console.error('[Agents] Focus failed:', error.message);
+  } else {
+    console.error('[Agents] Focus failed:', result.error || `herdr-app exited with ${result.code}`);
     showFeedback('showAlert', context);
   }
 }
@@ -987,8 +1003,9 @@ if (require.main === module) startPlugin();
 module.exports = {
   ACTIONS,
   agentIdentity,
+  agentsFromTerminals,
   compactNumber,
-  decorateAgents,
+  coreSocketPath,
   commandSettings,
   durationLabel,
   fetchCodexQuota,
@@ -1000,7 +1017,7 @@ module.exports = {
   queryActivity,
   readClaudeUsageRecord,
   reconcileAgentSlots,
-  requestHerdr,
+  requestCore,
   renderActivity,
   renderCard,
   renderClaudeActivity,
