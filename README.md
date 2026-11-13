@@ -25,22 +25,19 @@ its own name, so the group does not change how a skill is invoked.
 | Group | Skill | Purpose |
 | --- | --- | --- |
 | `engineering` | `mcp-doctor` | Review, score and fix an existing MCP server's tool catalog against the specification and directory requirements. To build a server, use `mcp-builder`. |
-| `engineering` | `pair-programmer` | Evidence-based code review, design trade-offs, and debugging, with proof before completion claims. |
 | `engineering` | `pg-performance-advisor` | Diagnose PostgreSQL performance with read-only, redacted queries. |
-| `engineering` | `sdlc-evaluator` | Audit a repository against an agentic software development lifecycle. |
 | `engineering` | `sentry-observability` | Design and review Sentry observability with privacy controls. |
-| `engineering` | `test-audit` | Check whether Python and SQL tests protect real behavior. |
+| `engineering` | `chief-of-staff` | Coordinate one project's GitHub board: intent-shaped issues, card moves, role runs on a model tier, and a short owner digest. |
+| `engineering` | `developer` | Implement one queued issue on its own branch, with its edge cases and evidence, and report `STATUS: READY` or `BLOCKED`. |
+| `engineering` | `reviewer` | Review one pull request against its issue and evidence and give `VERDICT: PASS` or `CHANGES`; never merges. |
+| `engineering` | `architect` | Split a large or open-ended issue into a decision record and intent-shaped child issues with `Blocked by` edges: `PLAN: READY` or `BLOCKED`. |
+| `engineering` | `devops` | CI, infrastructure and release changes as pull requests, and production deploys only after the owner approves the exact commit: `DEPLOY: DONE` or `BLOCKED`. |
+| `engineering` | `security-auditor` | Security review of a pull request with an exploit scenario per finding and hypotheses kept separate: `VERDICT: PASS` or `CHANGES`. |
+| `engineering` | `designer` | Design review of a UI pull request, checked in a real browser when possible and saying so when not: `VERDICT: PASS` or `CHANGES`. |
+| `engineering` | `approver` | Final gate for a reviewed pull request: squash-merge it, or escalate to the owner by the repository's escalation policy. |
 | `agent-ops` | `council` | Convene installed agent CLIs as a multi-model council with anonymized peer review and a redaction gate. |
 | `agent-ops` | `prompt-tuner` | Improve a skill, prompt or repeatable task by bounded experiment: diagnosis, frozen rubric, held-out cases, budget and round caps. |
 | `agent-ops` | `retro` | Run a session retrospective that improves the project's rules and skills, with a ledger kept in the repository (`.agents/retro.jsonl`) or in SQLite; unattended runs propose changes as pull requests. |
-| `roles` | `chief-of-staff` | Coordinate one project's GitHub board: intent-shaped issues, card moves, role runs with model and effort, and a short owner digest. |
-| `roles` | `developer` | Implement one queued issue on its own branch, with its edge cases and evidence, and report `STATUS: READY` or `BLOCKED`. |
-| `roles` | `reviewer` | Review one pull request against its issue and evidence and give `VERDICT: PASS` or `CHANGES`; never merges. |
-| `roles` | `architect` | Split a large or open-ended issue into a decision record and intent-shaped child issues with `Blocked by` edges: `PLAN: READY` or `BLOCKED`. |
-| `roles` | `devops` | CI, infrastructure and release changes as pull requests, and production deploys only after the owner approves the exact commit: `DEPLOY: DONE` or `BLOCKED`. |
-| `roles` | `security-auditor` | Security review of a pull request with an exploit scenario per finding and hypotheses kept separate: `VERDICT: PASS` or `CHANGES`. |
-| `roles` | `designer` | Design review of a UI pull request, checked in a real browser when possible and saying so when not: `VERDICT: PASS` or `CHANGES`. |
-| `roles` | `approver` | Final gate for a reviewed pull request: squash-merge it, or escalate to the owner by the repository's escalation policy. |
 | `content` | `clipping-curator` | Turn clipped web articles into concise, reusable notes in a configurable folder and format. |
 | `content` | `plausible-insights` | Analyze Plausible Analytics traffic, content, and SEO for a configured site, through the Stats API or a Plausible MCP server. |
 | `content` | `video-edit` | Edit recorded footage from a word-level transcript: cuts, cards, subtitles, loudness, vertical Shorts, verified renders. |

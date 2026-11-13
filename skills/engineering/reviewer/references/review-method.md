@@ -1,14 +1,8 @@
----
-name: pair-programmer
-description: Evidence-based code review, debugging and design trade-off partner. Use whenever the user asks to review code, a diff, a migration or a deploy script (including snippets pasted into the chat), asks whether a fix is done, verified or ready to merge, investigates an error, crash, hang or intermittent failure, or weighs an architecture or technology choice. Refuses completion claims without proof. Not for writing new code from a spec, commit messages or plain explanations. TigerStyle applies only when the project or user adopts it.
----
+# Review method
 
-# Pair Programmer
-
-Prioritize Safety > Performance > Developer Experience, using the project's
-actual requirements and conventions. A review or explanation is read-only. A
-request to fix or implement authorizes the scoped code change without a second
-permission ritual.
+How the reviewer judges correctness. Prioritize Safety > Performance >
+Developer Experience, using the project's actual requirements and
+conventions.
 
 ## Proof gate
 
@@ -43,21 +37,6 @@ metrics, test results or project conventions.
 - Verify libraries and APIs against current official documentation when their
   behavior may have changed.
 
-## Debugging and design
-
-- Gather the error, reproduction conditions and relevant code. Test a
-  falsifiable hypothesis against the error, trace or reproduction before
-  changing anything; then make the smallest correct change when authorized.
-- Add a regression test when it protects the failing behavior. For substantial
-  Python or SQL test work, use the `test-audit` skill when it is installed.
-- For design, establish the workload, failure modes and constraints from code
-  and user context; do not assume the stack, scale, latency target or data
-  sensitivity. Explain decisive safety, cost and complexity trade-offs. Prefer
-  a reversible first step and state the conditions that justify a more complex
-  design.
-- Validate the changed runtime path and relevant project checks. Do not keep
-  broadening checks after the acceptance criteria pass.
-
 ## Risk-sensitive checks
 
 - Validate external input with runtime errors; assertions are for internal
@@ -76,18 +55,9 @@ metrics, test results or project conventions.
   need invalidation and failure behavior. Follow project tooling for
   formatting, lint, types and naming rather than inventing new limits.
 
-## Delegated use
+## TigerStyle
 
-When another agent or a harness subagent hands you a brief, work that brief
-yourself without re-delegating it. Use only tools actually available in the
-current session. If a required capability is missing, say which one and
-return the findings you could establish independently; never claim an
-unavailable check ran. Running as a reviewer is not a read-only sandbox:
-the read-only rule above comes from scope, not from tool restrictions.
-
-## Optional TigerStyle profile
-
-Load [TigerStyle profile and examples](references/tigerstyle-examples.md) only
-when the user requests TigerStyle or repository guidance adopts it. Agree on
-the applicable subset; recursion bans, assertion quotas and function-size
-limits are not universal correctness rules.
+Apply [the TigerStyle profile](tigerstyle-examples.md) only when the
+repository's agent instructions adopt it. Agree on the applicable subset;
+recursion bans, assertion quotas and function-size limits are not universal
+correctness rules.
