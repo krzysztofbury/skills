@@ -22,6 +22,25 @@ section for that version becomes the GitHub release notes. See
   (`~/.config/herdr/herdr.sock`) and `HERDR_SOCKET`. Install the Herdr app to
   keep the pulse and session keys working.
 
+## [2.5.0] - 2026-11-13
+
+### Changed
+
+- `chief-of-staff`: roles are started on a tier (`light`, `standard`,
+  `heavy`) instead of a named model; the runner maps each tier to a provider,
+  model and effort from its own configuration, so models change without
+  editing the skill. Without one, `light` is Sonnet at `high`, `standard` Opus
+  at `medium` and `heavy` Opus at `high`. A failed run is retried one tier up.
+
+## [2.4.2] - 2026-11-13
+
+### Changed
+
+- `chief-of-staff`: Sonnet runs at `high` effort (small developer fixes,
+  reviewer, security-auditor, designer); Opus stays at `medium` unless its
+  row says `high`. A failed run steps up from Sonnet `high` to Opus `medium`,
+  then to Opus `high`.
+
 ## [2.4.0] - 2026-11-10
 
 ### Added
