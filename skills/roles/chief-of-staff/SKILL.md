@@ -103,11 +103,11 @@ closed, up to `max_parallel` running at once: move it to Building and start
 | Work | Model | Effort |
 |---|---|---|
 | developer: normal issue | Opus | medium |
-| developer: small, well-scoped fix | Sonnet | medium |
+| developer: small, well-scoped fix | Sonnet | high |
 | developer: migration, performance, large refactor | Opus | high |
 | architect: too large for one pull request, or a real design choice; runs before the developer | Opus | high |
 | devops: deploy, release, CI or infrastructure work | Opus | medium |
-| reviewer, security-auditor, designer | Sonnet | medium |
+| reviewer, security-auditor, designer | Sonnet | high |
 | approver | Opus | medium |
 
 Next to `reviewer`, start `security-auditor` when the diff touches
@@ -118,8 +118,9 @@ infrastructure or deploy scripts; start `designer` when it touches UI
 components, pages, templates, styles, theme tokens, user-facing copy or
 static assets. All three use the same `VERDICT:` first line.
 
-A failed run is retried once one step up: the same model at `high`, then
-Sonnet to Opus. Do not go below `medium`. A card whose developer has received
+Sonnet always runs at `high`; Opus runs at `medium` unless its row says
+`high`. A failed run is retried once, one step up: Sonnet `high` to Opus
+`medium`, Opus `medium` to Opus `high`. A card whose developer has received
 `VERDICT: CHANGES` twice goes to Blocked with a 🙋 line instead of a third
 round.
 
