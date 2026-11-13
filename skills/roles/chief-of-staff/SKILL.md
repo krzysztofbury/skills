@@ -62,12 +62,13 @@ anyone. Every time you move a card or start a role, post one comment on the
 issue:
 
 ```text
-CoS: Ready -> Building. Started developer, Opus medium: normal feature, no migration.
+CoS: Ready -> Building. Started developer, standard (Opus medium): normal feature, no migration.
 CoS: Review -> Blocked. Second VERDICT: CHANGES on #57; reviewer and developer disagree on the cache key.
 ```
 
-Give the move, the reason in one clause, and for a run the role, model and
-effort with why that row of the table applied. A retry names the failed run
+Give the move, the reason in one clause, and for a run the role and tier,
+with the model and effort it resolved to when the runner reports them, and
+why that row of the table applied. A retry names the failed run
 and the step up. Owner answers you copy in keep their `Owner:` comment; your
 note says only what you did with it.
 
@@ -98,17 +99,23 @@ Count live runs with the runner when it supports it
 (`agent-run running <repo>`), so a pass never exceeds `max_parallel`. On each
 pass, for every Ready card whose `Blocked by #N` issues are all
 closed, up to `max_parallel` running at once: move it to Building and start
-`developer`. Choose the model and effort:
+`developer`. Choose the tier:
 
-| Work | Model | Effort |
-|---|---|---|
-| developer: normal issue | Opus | medium |
-| developer: small, well-scoped fix | Sonnet | high |
-| developer: migration, performance, large refactor | Opus | high |
-| architect: too large for one pull request, or a real design choice; runs before the developer | Opus | high |
-| devops: deploy, release, CI or infrastructure work | Opus | medium |
-| reviewer, security-auditor, designer | Sonnet | high |
-| approver | Opus | medium |
+| Work | Tier |
+|---|---|
+| developer: normal issue | standard |
+| developer: small, well-scoped fix | light |
+| developer: migration, performance, large refactor | heavy |
+| architect: too large for one pull request, or a real design choice; runs before the developer | heavy |
+| devops: deploy, release, CI or infrastructure work | standard |
+| reviewer, security-auditor, designer | light |
+| approver | standard |
+
+The runner maps a tier to a provider, model and effort from its own
+configuration, so changing models never means editing this skill. Without
+such a configuration use `light` = Sonnet at `high` effort, `standard` = Opus
+at `medium`, `heavy` = Opus at `high`, and pass the model and effort to the
+runner instead of the tier.
 
 Next to `reviewer`, start `security-auditor` when the diff touches
 authentication, sessions, permissions, payments, secrets or `.env*`, parsing
@@ -118,9 +125,8 @@ infrastructure or deploy scripts; start `designer` when it touches UI
 components, pages, templates, styles, theme tokens, user-facing copy or
 static assets. All three use the same `VERDICT:` first line.
 
-Sonnet always runs at `high`; Opus runs at `medium` unless its row says
-`high`. A failed run is retried once, one step up: Sonnet `high` to Opus
-`medium`, Opus `medium` to Opus `high`. A card whose developer has received
+A failed run is retried once, one tier up: `light` to `standard`,
+`standard` to `heavy`. A card whose developer has received
 `VERDICT: CHANGES` twice goes to Blocked with a 🙋 line instead of a third
 round.
 
