@@ -5,6 +5,23 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [3.0.0] - 2026-11-13
+
+### Changed
+
+- OpenDeck Agents plugin 2.0.0: the pulse and session keys read agents from
+  the Herdr app's terminal runtime, herdr-core (`terminal.list` on
+  `$XDG_RUNTIME_DIR/herdr-core/default.sock`, override `HC_SOCKET`), and a
+  press focuses the agent with `herdr-app do agent.focus`. Keys show the
+  Herdr app tab, space and terminal address; `error` counts as blocked;
+  sub-agents are left out of the slots.
+
+### Removed
+
+- OpenDeck Agents plugin: support for the Herdr TUI socket
+  (`~/.config/herdr/herdr.sock`) and `HERDR_SOCKET`. Install the Herdr app to
+  keep the pulse and session keys working.
+
 ## [2.4.0] - 2026-11-10
 
 ### Added

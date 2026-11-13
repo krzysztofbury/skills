@@ -9,8 +9,9 @@ const test = require('node:test');
 const { DatabaseSync } = require('node:sqlite');
 
 const {
+  agentsFromTerminals,
   compactNumber,
-  decorateAgents,
+  coreSocketPath,
   fetchCodexQuota,
   highestPriorityAgent,
   normalizeQuota,
@@ -18,65 +19,103 @@ const {
   reconcileAgentSlots,
   renderQuota,
   renderPulse,
-  requestHerdr,
+  renderSession,
+  requestCore,
 } = require('../plugin');
 
 function decodeSvg(dataUri) {
   return Buffer.from(dataUri.split(',')[1], 'base64').toString('utf8');
 }
 
-test('keeps existing agents in stable slots and fills gaps', () => {
-  const agents = [
-    { pane_id: 'w1:p1', terminal_id: 'one', tab_id: 'w1:t1' },
-    { pane_id: 'w1:p3', terminal_id: 'three', tab_id: 'w1:t3' },
-  ];
-  assert.deepEqual(reconcileAgentSlots(agents, ['w1:p3', null, 'missing']), ['w1:p3', 'w1:p1', null]);
+function terminal(address, state, extra = {}) {
+  return {
+    address,
+    state: 'live',
+    parent: null,
+    status: state ? { app: 'claude-code', state } : null,
+    labels: { where: `DEV / ${address}-tab` },
+    created_ms: Number(address.slice(1)),
+    status_ms: 0,
+    ...extra,
+  };
+}
+
+test('keeps existing agents in stable slots and fills gaps in start order', () => {
+  const agents = agentsFromTerminals({ terminals: [terminal('t9', 'idle'), terminal('t1', 'idle'), terminal('t3', 'idle')] });
+  assert.deepEqual(reconcileAgentSlots(agents, ['t3', null, 'missing', null]), ['t3', 't1', 't9', null]);
 });
 
-test('uses pane identity when one native session appears in multiple panes', () => {
-  const shared = { source: 'herdr:opencode', agent: 'opencode', kind: 'id', value: 'same' };
-  const agents = [
-    { pane_id: 'w1:p1', agent_session: shared },
-    { pane_id: 'w1:p2', agent_session: shared },
-  ];
-  assert.deepEqual(reconcileAgentSlots(agents, [null, null]), ['w1:p1', 'w1:p2']);
-});
-
-test('selects blocked, then done, then working agents for attention', () => {
-  const working = { pane_id: 'working', agent_status: 'working', state_change_seq: 9 };
-  const done = { pane_id: 'done', agent_status: 'done', state_change_seq: 2 };
-  const blocked = { pane_id: 'blocked', agent_status: 'blocked', state_change_seq: 1 };
-  assert.equal(highestPriorityAgent([working, done, blocked]), blocked);
-  assert.equal(highestPriorityAgent([working, done]), done);
-});
-
-test('decorates agents with their Herdr tab label', () => {
-  const agents = decorateAgents({
-    agents: [{ pane_id: 'p1', tab_id: 't1', agent: 'opencode' }],
-    tabs: [{ tab_id: 't1', label: 'Example' }],
+test('an agent is a live root terminal that reports a status', () => {
+  const agents = agentsFromTerminals({
+    terminals: [
+      terminal('t1', 'working'),
+      terminal('t2', null),
+      terminal('t3', 'idle', { state: 'finished' }),
+      terminal('t4', 'blocked', { parent: 't1' }),
+      terminal('t5', 'thinking'),
+    ],
   });
-  assert.equal(agents[0].displayLabel, 'Example');
+  assert.deepEqual(agents.map((agent) => [agent.address, agent.agent_status]), [['t1', 'working'], ['t5', 'unknown']]);
 });
 
-test('communicates with a Herdr session.snapshot socket', async () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'opendeck-herdr-'));
-  const socketPath = path.join(directory, 'herdr.sock');
+test('labels come from the Herdr app space and tab, with fallbacks', () => {
+  const [labelled, named, bare] = agentsFromTerminals({
+    terminals: [
+      terminal('t1', 'idle', { labels: { where: 'PRIV / fix / login' } }),
+      terminal('t2', 'idle', { labels: {}, name: 'review' }),
+      terminal('t3', 'idle', { labels: {}, status: { state: 'idle' }, foreground: { name: 'pi' } }),
+    ],
+  });
+  assert.deepEqual([labelled.space, labelled.displayLabel], ['PRIV', 'fix / login']);
+  assert.deepEqual([named.space, named.displayLabel], ['', 'review']);
+  assert.equal(bare.displayLabel, 'pi');
+  assert.match(decodeSvg(renderSession(labelled, true)), /PRIV \| t1/);
+});
+
+test('selects blocked or error, then done, then working agents for attention', () => {
+  const agents = agentsFromTerminals({
+    terminals: [
+      terminal('t1', 'working', { status_ms: 9 }),
+      terminal('t2', 'done', { status_ms: 2 }),
+      terminal('t3', 'error', { status_ms: 1 }),
+    ],
+  });
+  assert.equal(highestPriorityAgent(agents).address, 't3');
+  assert.equal(highestPriorityAgent(agents.slice(0, 2)).address, 't2');
+  assert.match(decodeSvg(renderPulse(agents, true)), /1 BLOCKED/);
+});
+
+test('finds the herdr-core socket', () => {
+  assert.equal(coreSocketPath({ HC_SOCKET: '/x/hc.sock', XDG_RUNTIME_DIR: '/run/user/7' }), '/x/hc.sock');
+  assert.equal(coreSocketPath({ XDG_RUNTIME_DIR: '/run/user/7' }), '/run/user/7/herdr-core/default.sock');
+});
+
+test('sends JSON-RPC 2.0 requests to the herdr-core socket', async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'opendeck-herdr-core-'));
+  const socketPath = path.join(directory, 'default.sock');
   const server = net.createServer((socket) => {
     socket.once('data', (data) => {
       const request = JSON.parse(data.toString().trim());
-      assert.equal(request.method, 'session.snapshot');
-      socket.end(`${JSON.stringify({ id: request.id, result: { snapshot: { agents: [] } } })}\n`);
+      assert.equal(request.jsonrpc, '2.0');
+      if (request.method === 'terminal.list') {
+        socket.end(`${JSON.stringify({ jsonrpc: '2.0', id: request.id, result: { terminals: [] } })}\n`);
+      } else {
+        socket.end(`${JSON.stringify({ jsonrpc: '2.0', id: request.id, error: { code: -32601, message: 'secret', data: { kind: 'unknown_method' } } })}\n`);
+      }
     });
   });
   try {
     await new Promise((resolve) => server.listen(socketPath, resolve));
-    const previous = process.env.HERDR_SOCKET;
-    process.env.HERDR_SOCKET = socketPath;
+    const previous = process.env.HC_SOCKET;
+    process.env.HC_SOCKET = socketPath;
     try {
-      assert.deepEqual(await requestHerdr('session.snapshot'), { snapshot: { agents: [] } });
+      assert.deepEqual(await requestCore('terminal.list'), { terminals: [] });
+      await assert.rejects(requestCore('nope'), /herdr-core nope failed: unknown_method/);
+      process.env.HC_SOCKET = path.join(directory, 'missing.sock');
+      await assert.rejects(requestCore('terminal.list'), /ENOENT/);
     } finally {
-      if (previous === undefined) delete process.env.HERDR_SOCKET;
-      else process.env.HERDR_SOCKET = previous;
+      if (previous === undefined) delete process.env.HC_SOCKET;
+      else process.env.HC_SOCKET = previous;
     }
   } finally {
     await new Promise((resolve) => server.close(resolve));
