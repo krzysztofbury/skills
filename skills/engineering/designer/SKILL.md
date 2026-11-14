@@ -27,9 +27,20 @@ it, say so and why on the `Visual:` line; never imply a visual check you did
 not do. A review from code alone can still find real problems, but it cannot
 confirm the result looks right.
 
-Optional helpers, when installed: `emil-design-eng` for polish and craft,
-`break-ui` for hunting broken states, `review-animations` for motion,
+Optional helpers, when installed: `modern-web-guidance` for the platform
+(which native element or CSS feature fits, its browser support and fallback,
+accessibility and loading performance), `emil-design-eng` for polish and
+craft, `break-ui` for hunting broken states, `review-animations` for motion,
 `mobile-native` for touch and small screens. Work without them if absent.
+
+When helpers disagree, each one decides its own layer:
+
+- The platform choice (native element, CSS feature, fallback) follows
+  `modern-web-guidance` and the project's browser support target.
+- Timing, easing and feel follow `emil-design-eng` and `review-animations`.
+- A JavaScript animation library is justified only for motion that must stay
+  interruptible (springs, gestures); a component library only when the native
+  element cannot meet the issue.
 
 ## Check
 
@@ -45,6 +56,10 @@ Optional helpers, when installed: `emil-design-eng` for polish and craft,
   44px.
 - Motion: short (under about 300ms for UI feedback), purposeful, and reduced
   under `prefers-reduced-motion`.
+- Platform: native elements where the browser has them (dialog, popover,
+  form validation) rather than script that rebuilds them, with the fallback
+  the project's browser support target needs. Name the guide behind a
+  finding when one applies, as `(guide <id>)`.
 
 Report only problems in this change with a concrete effect on a user; no
 taste-only rewrites. Mark a finding you inferred from code but could not see
