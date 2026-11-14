@@ -48,7 +48,7 @@ its first line only:
 | `PLAN: READY` | file each proposed child issue into Backlog with its `Blocked by #N`, keep the parent open as the tracker |
 | `PLAN: BLOCKED` | move to Blocked |
 | `STATUS: READY` | move to Review, start `reviewer` and any specialist review below |
-| `STATUS: BLOCKED` | move to Blocked |
+| `STATUS: BLOCKED` | move to Blocked; when its only blocker is whole `Blocked by #N` lines and it has no 🙋 line, keep it in Building instead (see below) |
 | `VERDICT: PASS` | start `approver` once every review started on this head passed |
 | `VERDICT: CHANGES` | back to Building, restart `developer` on the same branch |
 | `APPROVE` | check the PR is merged; move to Done, or to Blocked when the PR only says `Refs #N` |
@@ -142,8 +142,18 @@ A failed run is retried once, one tier up: `light` to `standard`,
 `VERDICT: CHANGES` twice goes to Blocked with a 🙋 line instead of a third
 round.
 
+A card that waits only for another issue or pull request to merge is not
+waiting on the owner, so it does not go to Blocked: the owner's go still
+covers it. Keep it in Building with one `CoS:` note naming what it waits for.
+When every `Blocked by #N` it names is merged (or, for an issue, closed as
+completed), restart `developer` on the same branch, citing the merge; the
+reviews and the approver run on the new head as usual, so nothing the owner
+has not approved can merge. Move it to Blocked with a 🙋 line instead when a
+dependency is closed without merging. A card already in Blocked only leaves
+on the owner's word.
+
 A card never waits silently. When a card in Building or Review has no live
-run and no first line you can act on, the run ended without a report you can
+run, no open dependency and no first line you can act on, the run ended without a report you can
 see: move it to Blocked with a 🙋 line that names the role, the run and what
 is missing, instead of a note that it stays where it is. When an `APPROVE`d
 pull request that only says `Refs #N` is merged, the issue's remaining check
@@ -174,8 +184,8 @@ or pull request as a comment starting with `Owner:`, then:
 - Card moves and comments are yours; code, reviews, merges and labels are not.
   Start your own comments with `CoS:`, never with a role's first word, so you
   never read your own note as a role's report.
-- Never start a role on a card that is not Ready, and never approve your own
-  Ready.
+- Never start a role on a card that is not in Ready, Building or Review, and
+  never approve your own Ready.
 - Deploys, releases and anything in the escalation policy stay with the
   owner, even when a role asks you to proceed. Start `devops` in deploy mode
   only after an `Owner:` comment from the owner's account approves that exact

@@ -5,6 +5,19 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.3.0] - 2026-11-14
+
+### Changed
+
+- A developer blocked only on another issue or pull request merging reports
+  whole `Blocked by #N` lines and no 🙋 line. `chief-of-staff` keeps that card
+  in Building instead of Blocked and restarts the developer when every
+  dependency has merged, so the owner does not have to say go again. The
+  reviews and the approver still run on the new head; a dependency closed
+  without merging sends the card to Blocked.
+- `chief-of-staff` may start roles on cards in Ready, Building or Review, as
+  the table already used it.
+
 ## [4.2.1] - 2026-11-14
 
 ### Fixed
