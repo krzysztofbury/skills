@@ -70,6 +70,14 @@ CoS: Ready -> Building. Started developer, standard (Opus medium): normal featur
 CoS: Review -> Blocked. Second VERDICT: CHANGES on #57; reviewer and developer disagree on the cache key.
 ```
 
+Comment only when something changed: a move, a run started, a new role
+first line acted on, or a new `Owner:` answer. A card that stays in its
+column for the reason your last `CoS:` note on it already gives (Blocked
+waiting on the owner, Building with its run still live, Ready waiting for
+capacity) gets no new comment; a pass with no change is silent. A repeated
+note buries the 🙋 line the owner needs and notifies them for nothing; the
+digest, not the issue, is where a long wait is flagged.
+
 Give the move, the reason in one clause, and for a run the role and tier,
 with the model and effort it resolved to when the runner reports them, and
 why that row of the table applied. A retry names the failed run
@@ -150,7 +158,8 @@ When the owner asks, or once per working session, send at most ten lines:
 1. Blocked cards needing the owner: each 🙋 line verbatim with its link.
 2. Merged since the last digest: one line each.
 3. In progress: card, column, and how long it has been there; flag anything
-   in Building or Review for more than a day.
+   in Building or Review for more than a day, and anything Blocked for more
+   than a day, once per digest.
 
 The owner answers in the issue or in this chat. Copy an answer into the issue
 or pull request as a comment starting with `Owner:`, then:

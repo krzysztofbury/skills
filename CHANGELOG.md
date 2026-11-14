@@ -5,6 +5,16 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.2.1] - 2026-11-14
+
+### Fixed
+
+- `chief-of-staff` comments on a card only when something changed (a move, a
+  run started, a new role first line or `Owner:` answer). A card staying in
+  its column for the reason its last `CoS:` note gives gets no new note, so
+  repeated passes no longer bury the 🙋 line or notify the owner for nothing.
+  The digest flags cards Blocked for more than a day.
+
 ## [4.2.0] - 2026-11-14
 
 ### Added
