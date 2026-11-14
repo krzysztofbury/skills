@@ -55,6 +55,11 @@ All of these, or the work is not done:
    not have to guess why it looks the way it does; skip the section only when
    there was nothing to choose.
 4. CI is green on the head commit you pushed. If CI fails, fix it or stop.
+   A failure your change did not cause (a new advisory against a dependency,
+   a tool that broke on `main`) is still yours when the fix is small: update
+   that dependency in this pull request, within the project's dependency
+   rules, and say why in `Decisions`. Stop only when the fix needs the owner,
+   such as a major version or a change the escalation policy names.
 
 Hand the pull request to the `reviewer` role; the `approver` decides the
 merge. Never merge your own work.
@@ -64,7 +69,10 @@ merge. Never merge your own work.
 End with one comment (on the pull request, or on the issue when blocked)
 whose first line is exactly `STATUS: READY` or `STATUS: BLOCKED`, so a
 coordinator can act on it without reading further. When a reviewer returned
-`VERDICT: CHANGES`, address every finding, push, and report again.
+`VERDICT: CHANGES`, address every finding, push, and report again. When the
+approver returned `UPDATE`, bring the branch up to date with `main` (merge or
+rebase, as the project prefers), resolve any conflict within the issue's
+intent, rerun the checks, push, and report again.
 
 ## Blocked
 

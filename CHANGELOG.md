@@ -5,6 +5,21 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.2.0] - 2026-11-14
+
+### Added
+
+- `approver` reports `UPDATE` when the branch is behind `main` or conflicts,
+  instead of approving a head that cannot merge or escalating one that is
+  about to change; `chief-of-staff` sends it back to a light `developer` run
+  and the reviews start again on the new head.
+
+### Changed
+
+- `developer` fixes a CI failure its change did not cause when the fix is
+  small (for example a dependency with a new advisory), in the same pull
+  request, and stops only when the fix needs the owner.
+
 ## [4.1.0] - 2026-11-14
 
 ### Changed
