@@ -5,6 +5,21 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.4.0] - 2026-11-14
+
+### Added
+
+- `developer` and `designer` use the `modern-web-guidance` skill, when it is
+  installed, for HTML, CSS and client-side JavaScript: the developer
+  retrieves the matching guides before writing and names the ones that shaped
+  the code in `Decisions`, and the designer checks for native elements and
+  the fallbacks the project's browser support target needs. Both read that
+  target from the project's `AGENTS.md`.
+- `designer` states which helper decides what when they disagree: the
+  platform choice follows `modern-web-guidance`, timing and feel follow
+  `emil-design-eng` and `review-animations`, and animation or component
+  libraries need a reason the platform cannot meet.
+
 ## [4.3.0] - 2026-11-14
 
 ### Changed

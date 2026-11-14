@@ -31,6 +31,15 @@ report they will read.
   same pull request; for Python or SQL tests, follow
   [the test audit](references/test-audit.md). When something fails or the
   design is open, work by [debugging and design](references/debugging-and-design.md).
+- For HTML, CSS or client-side JavaScript, when the `modern-web-guidance`
+  skill is installed, search and retrieve its guides before writing and check
+  the code against them; agents otherwise reach for outdated patterns. Use
+  the project's browser support target from `AGENTS.md` (a Baseline year or a
+  policy); without one, the skill's default applies. Run its command at the
+  version your setup pins, if it pins one.
+- Name the guides that shaped the code, and the rule each one changed, in the
+  pull request's `Decisions` section, not in a separate section of your
+  report: the report's first line stays the only thing a coordinator reads.
 - Never print, log or commit a secret, and never read production data.
 - Do not edit CI workflows, rulesets, infrastructure or deploy scripts unless
   the issue says so; that work needs the owner's go.
