@@ -42,7 +42,12 @@ All of these, or the work is not done:
 1. The issue's own verification passes, run by you, with the output kept.
 2. The project's required checks pass locally (tests, lint, type checks).
 3. A pull request is open: what changed and why, the issue link, the commands
-   you ran with their results, and anything deliberately left out. Add a
+   you ran with their results, and anything deliberately left out. Put the
+   issue link on a line of its own: `Closes #42` when the merge finishes the
+   issue, `Refs #42` when part of its check can only happen after the merge
+   (an owner check on a device, a wait for CI history). A coordinator follows
+   only that line form to the issue's card, so a pull request without it is
+   never reviewed. Add a
    `Decisions` section for every choice a reader could question (approach,
    library, data shape, an edge case handled one way rather than another):
    the options you weighed, the one you took, and why, one or two lines

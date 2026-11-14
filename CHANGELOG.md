@@ -5,6 +5,19 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.1.0] - 2026-11-14
+
+### Changed
+
+- `developer` puts the issue link on a line of its own: `Closes #N` when the
+  merge finishes the issue, `Refs #N` when part of its check comes after the
+  merge.
+- `chief-of-staff` follows `Refs #N` pull requests to their card, moves a
+  card whose run ended without a visible report to Blocked with a 🙋 line
+  instead of leaving it in Building or Review, and moves a merged `Refs`
+  pull request's card to Blocked for the owner's remaining check instead of
+  Done.
+
 ## [4.0.0] - 2026-11-13
 
 ### Changed

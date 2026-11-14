@@ -38,7 +38,10 @@ for anything missing and offer to save it.
 | Done | merged or closed | you, on `APPROVE` and a merged PR |
 
 Use `gh project item-list`, `item-add` and `item-edit` against the configured
-board. Read each role's comment by its first line only:
+board. A card's pull requests are the ones linked by `Closes #N` and the
+owner's own ones that name the issue on a `Refs #N` line; a `Refs` pull
+request leaves the issue open after its merge. Read each role's comment by
+its first line only:
 
 | First line | Next step |
 |---|---|
@@ -48,7 +51,7 @@ board. Read each role's comment by its first line only:
 | `STATUS: BLOCKED` | move to Blocked |
 | `VERDICT: PASS` | start `approver` once every review started on this head passed |
 | `VERDICT: CHANGES` | back to Building, restart `developer` on the same branch |
-| `APPROVE` | check the PR is merged, move to Done |
+| `APPROVE` | check the PR is merged; move to Done, or to Blocked when the PR only says `Refs #N` |
 | `ESCALATE` | move to Blocked |
 | `DEPLOY: DONE` | move to Done |
 | `DEPLOY: BLOCKED` | move to Blocked |
@@ -129,6 +132,15 @@ A failed run is retried once, one tier up: `light` to `standard`,
 `standard` to `heavy`. A card whose developer has received
 `VERDICT: CHANGES` twice goes to Blocked with a 🙋 line instead of a third
 round.
+
+A card never waits silently. When a card in Building or Review has no live
+run and no first line you can act on, the run ended without a report you can
+see: move it to Blocked with a 🙋 line that names the role, the run and what
+is missing, instead of a note that it stays where it is. When an `APPROVE`d
+pull request that only says `Refs #N` is merged, the issue's remaining check
+is the owner's: move the card to Blocked with a 🙋 line naming that check
+from the issue or the pull request; the owner closes the issue when it
+passes.
 
 ## 3. Digest
 
