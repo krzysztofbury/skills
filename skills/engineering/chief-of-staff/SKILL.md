@@ -53,6 +53,7 @@ its first line only:
 | `VERDICT: CHANGES` | back to Building, restart `developer` on the same branch |
 | `APPROVE` | check the PR is merged; move to Done, or to Blocked when the PR only says `Refs #N` |
 | `ESCALATE` | move to Blocked |
+| `UPDATE` | back to Building, start `developer` (light) to bring the branch up to date with `main`; reviews start again on the new head |
 | `DEPLOY: DONE` | move to Done |
 | `DEPLOY: BLOCKED` | move to Blocked |
 | `Retro:` | nothing; the retro's pull request reaches the owner by itself |

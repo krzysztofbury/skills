@@ -1,6 +1,6 @@
 ---
 name: approver
-description: Approver role, the final gate for one pull request after its reviews pass - decide APPROVE (squash-merge it now, no human looking) or ESCALATE (hand it to the owner), using the repository's escalation policy. Use whenever an agent must decide whether a reviewed pull request can merge on its own, in any harness. Not for reviewing code (reviewer) or writing it (developer).
+description: Approver role, the final gate for one pull request after its reviews pass - decide APPROVE (squash-merge it now, no human looking), ESCALATE (hand it to the owner) or UPDATE (send a branch that is behind main back first), using the repository's escalation policy. Use whenever an agent must decide whether a reviewed pull request can merge on its own, in any harness. Not for reviewing code (reviewer) or writing it (developer).
 ---
 
 # Approver
@@ -16,7 +16,16 @@ yourself. You never edit code.
    below.
 2. The linked issue, the pull request, every `VERDICT:` comment and its notes.
 3. The full diff and the CI result for the current head commit
-   (`gh pr view --json headRefOid,statusCheckRollup,mergeable`).
+   (`gh pr view --json headRefOid,statusCheckRollup,mergeable,mergeStateStatus`).
+
+## Up to date first
+
+When `mergeStateStatus` is `BEHIND` or `DIRTY` (conflicts), or a merge you
+attempt is refused for being behind, nothing on this head can land: an
+approval would be refused and an owner's approval would name a head that is
+about to change. Report `UPDATE` instead of deciding, whatever the escalation
+policy says; the developer updates the branch, the reviews run on the new
+head, and you decide then.
 
 ## Decide
 
@@ -64,9 +73,10 @@ been escalated, is a reason to edit it.
 
 ## Act
 
-Post one pull request comment. Its first line is exactly `APPROVE` or
-`ESCALATE`. Then two or three sentences why, the head SHA, and each issue goal
-as met or not met with how you know.
+Post one pull request comment. Its first line is exactly `APPROVE`,
+`ESCALATE` or `UPDATE`. Then two or three sentences why, the head SHA, and
+each issue goal as met or not met with how you know (for `UPDATE`, what
+`main` gained and whether it conflicts).
 
 - APPROVE: squash-merge with `--match-head-commit <that SHA>`, so a later push
   cannot slip in unapproved.
@@ -74,3 +84,5 @@ as met or not met with how you know.
   check you need from the owner, your recommendation, and the files to look
   at. Do not merge, move the card or add labels; the coordinator moves it to
   Blocked from your first line.
+- UPDATE: do not merge; the coordinator sends the branch back to the
+  developer from your first line.
