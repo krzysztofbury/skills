@@ -80,6 +80,8 @@ Stop instead of guessing when a decision belongs to the owner, a dependency is
 missing, or the same failure repeats twice. Comment on the issue with
 `STATUS: BLOCKED` as the first line, then State, Delta, Attempted and Blocker,
 and a line starting with 🙋 that holds the exact question or command for the
-owner, with your recommended answer. When another issue is the cause, name it
-as `Blocked by #N` instead. Do not move the card or add labels; the
-coordinator does that from your first line.
+owner, with your recommended answer. When the only blocker is another issue
+or pull request of this repository that has to merge first, write one
+`Blocked by #N` line of its own for each and no 🙋 line: the coordinator
+restarts you when they merge, without asking the owner again. Do not move the
+card or add labels; the coordinator does that from your first line.
