@@ -54,7 +54,20 @@ Options, best first:
 2. Export the console's certificate (or the private CA that issued it) after
    the user has verified its fingerprint out of band, and set `UNIFI_CA_CERT`
    to that file. The hostname in `UNIFI_URL` must match the certificate.
-3. Reach the controller through an SSH tunnel and use
+3. Keep the certificate's hostname when the certificate does not cover the
+   address you reach the console by. Some UniFi OS consoles (seen on a Cloud
+   Key Gen2 Plus) ship a self-signed certificate for `unifi.local` with no
+   LAN IP in its subject alternative names, so `https://<ip>` fails
+   verification. Check the names with `openssl x509 -noout -ext
+   subjectAltName` before choosing this option. Set
+   `UNIFI_URL=https://unifi.local`, `UNIFI_CONNECT_ADDR` to the console's
+   IP address and `UNIFI_CA_CERT` to the saved certificate; the script passes
+   `curl --resolve` and verification stays on. It works only with an `https`
+   URL. Save the certificate with
+   `openssl s_client -connect <address>:443 </dev/null | openssl x509 >
+   controller.pem` and compare its SHA-256 fingerprint with the one the
+   browser shows on a trusted connection to the console.
+4. Reach the controller through an SSH tunnel and use
    `http://127.0.0.1:<port>`; plain HTTP is accepted only for loopback URLs.
 
 ## Session lifetime and scratch files
@@ -71,6 +84,7 @@ controller side.
 | Symptom | Likely cause |
 |---|---|
 | `cannot reach ... (connection or TLS failure)` | Wrong URL or port, VPN or firewall, or certificate not trusted. |
+| TLS failure with a pinned `UNIFI_CA_CERT` and an IP in `UNIFI_URL` | The certificate names a hostname only; use that hostname with `UNIFI_CONNECT_ADDR`. |
 | `login failed with HTTP 401/403` | Wrong credentials, account locked, or cloud-only account. |
 | `the account requires MFA` | Set `UNIFI_TOTP` with a fresh code, or use a view-only local account or API key. |
 | `HTTP 401` on reads with an API key | The Network version does not accept keys on these endpoints. |

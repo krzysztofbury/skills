@@ -5,6 +5,21 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.5.0] - 2026-11-15
+
+### Added
+
+- `ubiquiti-advisor`: `UNIFI_CONNECT_ADDR` connects to a console by IP address
+  while an `https` `UNIFI_URL` keeps the certificate's hostname, so a
+  self-signed `unifi.local` certificate can be pinned with verification on.
+
+### Changed
+
+- `ubiquiti-advisor`: password manager entries are read field by field into
+  the command's environment; notes and other fields, which can hold MFA
+  recovery codes, are never printed. The controller address comes from the
+  user or configuration, never from a guess.
+
 ## [4.4.0] - 2026-11-14
 
 ### Added
