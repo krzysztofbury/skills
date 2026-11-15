@@ -18,7 +18,7 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 skill_dir=$(dirname "$script_dir")
 known_keys=(UNIFI_URL UNIFI_SITE UNIFI_USERNAME UNIFI_PASSWORD UNIFI_TOTP
   UNIFI_API_KEY UNIFI_CA_CERT UNIFI_API_PREFIX UNIFI_LOGIN_PATH
-  UNIFI_ALLOWED_ENDPOINTS UNIFI_REDACT_KEYS)
+  UNIFI_ALLOWED_ENDPOINTS UNIFI_REDACT_KEYS UNIFI_CONNECT_ADDR)
 
 die() { printf 'unifi-read: %s\n' "$*" >&2; exit 1; }
 
@@ -99,6 +99,7 @@ if $check; then
   printf 'auth: %s\n' "$auth_mode"
   printf 'username set: %s\n' "$([[ -n ${UNIFI_USERNAME:-} ]] && echo yes || echo no)"
   printf 'ca cert: %s\n' "${UNIFI_CA_CERT:-<system trust store>}"
+  printf 'connect address: %s\n' "${UNIFI_CONNECT_ADDR:-<from URL host>}"
   printf 'allowlist:%s\n' "${allowlist% }"
   exit 0
 fi
@@ -121,6 +122,22 @@ for endpoint in "${endpoints[@]}"; do
 done
 
 curl_opts=(-sS --connect-timeout 10 --max-time 30 --proto "=https,http")
+if [[ -n ${UNIFI_CONNECT_ADDR:-} ]]; then
+  # Keep the certificate's hostname in UNIFI_URL for TLS verification and
+  # connect to this address instead of resolving that hostname.
+  # HTTPS only: plain HTTP is allowed for loopback URLs, and redirecting
+  # one to another address would send the session in clear text.
+  [[ $UNIFI_CONNECT_ADDR =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ||
+    $UNIFI_CONNECT_ADDR =~ ^[0-9A-Fa-f]*:[0-9A-Fa-f:]*$ ]] ||
+    die "UNIFI_CONNECT_ADDR must be an IPv4 or IPv6 address"
+  [[ $UNIFI_URL =~ ^https://([^/:]+)(:([0-9]+))?$ ]] ||
+    die "UNIFI_CONNECT_ADDR needs an https UNIFI_URL with a hostname"
+  url_host=${BASH_REMATCH[1]}
+  url_port=${BASH_REMATCH[3]:-443}
+  connect_addr=$UNIFI_CONNECT_ADDR
+  [[ $connect_addr == *:* ]] && connect_addr="[$connect_addr]"
+  curl_opts+=(--resolve "$url_host:$url_port:$connect_addr")
+fi
 if [[ -n ${UNIFI_CA_CERT:-} ]]; then
   [[ -f $UNIFI_CA_CERT ]] || die "UNIFI_CA_CERT not found: $UNIFI_CA_CERT"
   curl_opts+=(--cacert "$UNIFI_CA_CERT")

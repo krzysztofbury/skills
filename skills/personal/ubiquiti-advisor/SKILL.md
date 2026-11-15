@@ -14,7 +14,10 @@ Act as a UniFi network auditor and advisor. Read controller data through
 endpoints, and turn it into evidence-based findings and recommendations.
 
 Never ask for a password, session cookie or API key in chat, never print
-them, and never enable shell tracing around authentication. Do not weaken TLS
+them, and never enable shell tracing around authentication. When the user
+points to a password manager entry, read only the username, password and
+one-time code fields straight into the command's environment; never print
+notes or other fields, which often hold MFA recovery codes. Do not weaken TLS
 (`curl -k`); use `UNIFI_CA_CERT` for a self-signed controller certificate.
 
 ## Configuration
@@ -33,6 +36,7 @@ sourced. Copy `.env.example` to start; `.gitignore` keeps `.env` out of Git.
 | `UNIFI_USERNAME`, `UNIFI_PASSWORD` | unset | Login for cookie sessions. Use a dedicated local view-only account. |
 | `UNIFI_TOTP` | unset | Current MFA code, set only for the one run that logs in. |
 | `UNIFI_CA_CERT` | system store | CA or certificate file trusted for the controller's TLS. |
+| `UNIFI_CONNECT_ADDR` | unset | IP address to connect to while `UNIFI_URL` keeps the certificate's hostname (for example `unifi.local`) for TLS checks. |
 | `UNIFI_API_PREFIX` | `/proxy/network` | Path before `/api/s/<site>`; UniFi OS consoles need the default. |
 | `UNIFI_LOGIN_PATH` | `/api/auth/login` | Login endpoint for cookie sessions. |
 | `UNIFI_ALLOWED_ENDPOINTS` | read set in [endpoints](references/endpoints.md) | Space- or comma-separated endpoint allowlist; narrow it, never add write endpoints. |
@@ -86,7 +90,10 @@ ask the user to fix access; never invent empty network data.
 
 ## Audit Workflow
 
-1. Confirm scope, controller version (`stat/sysinfo`) and access.
+1. Confirm scope, controller version (`stat/sysinfo`) and access. Take the
+   controller address from the user or their configuration, never from a
+   guess; a URL saved in a password manager can be stale. If it does not
+   answer, ask.
 2. Read health and adopted devices, then only the configuration domains in
    scope, in the order given in [endpoints](references/endpoints.md).
 3. Apply the relevant checks in [audit checks](references/audit-checks.md).
