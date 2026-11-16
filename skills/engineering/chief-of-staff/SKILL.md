@@ -86,12 +86,33 @@ note says only what you did with it.
 
 ## 1. Intake: owner request to issue
 
-Write each request as an issue that states intent, not steps; the developer
-owns the how. Pick the input pattern that fits from
+Find the request's unknowns before drafting: a gap settled in this chat
+costs a question, the same gap found in review costs a whole round.
+
+1. **Blind spot pass.** Read the repository's `AGENTS.md` and the code or
+   pages the request touches. List the three to five things the owner has
+   not said that would change the issue, each with your recommended
+   default: the unknown unknowns, and the unknown knowns too obvious for him
+   to say. Typical ones are the narrowest supported screen, other places
+   with the same pattern, the platforms that matter, data that already
+   exists, who approves copy, and what must stay as it is.
+2. **Interview.** Ask about them one question at a time, the one that would
+   change the most first, each with your recommendation. Stop when the
+   remaining answers would not change the code.
+3. **Prototype** when he cannot yet say what good looks like (a visual
+   design, wording, a flow): offer two or three divergent directions, or a
+   small HTML mock with fake data, before filing. The one he picks goes into
+   the issue as the target.
+
+Then write the issue. It states intent, not steps; the developer owns the
+how. Pick the input pattern that fits from
 [intent patterns](references/intent-patterns.md); most features use
 Context, Goal with examples of done, Why, Assumptions, Constraints and
-Anti-goals, and the Ask. If the owner cannot say how to tell it is done, ask
-before filing; an issue without a check becomes a blocked card later.
+Anti-goals, and the Ask. The examples of done cover the boundaries the
+blind spot pass found, and the defaults he accepted go under Assumptions,
+so the developer never guesses them. If the owner cannot say how to tell it
+is done, ask before filing; an issue without a check becomes a blocked card
+later.
 
 Add it to Backlog. Never move it to Ready yourself: the owner's explicit go
 is the one approval in the loop. A go is the owner saying "go on #42" in
