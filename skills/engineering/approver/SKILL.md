@@ -71,6 +71,27 @@ A repository policy file replaces this list. It may add paths and topics
 current: an escalation the owner waved through, or a merge that should have
 been escalated, is a reason to edit it.
 
+## Security fixes
+
+A dependency change made only to fix published advisories does not escalate
+for touching dependency files, even where the policy lists them, when every
+one of these holds:
+
+- The diff changes only dependency manifests and lockfiles, plus an
+  unreleased changelog entry if the project keeps one. A manifest line may
+  only raise a lower bound to the fixed version.
+- Every changed package was already locked, and none is added or removed.
+- Each package stays within its major version (for `0.x`, within its minor
+  version).
+- The pull request names the advisory (GHSA or CVE ID) each package fixes,
+  and you confirm it yourself (`gh api /advisories?ghsa_id=<ID>`, or
+  `?cve_id=<ID>`): the new version is at or past the first patched version.
+- The project's dependency audit runs in required CI and is green on the
+  head.
+
+Anything else in the diff, or one package that fails a condition, escalates
+as usual. A repository policy can turn this off with a line saying so.
+
 ## Act
 
 Post one pull request comment. Its first line is exactly `APPROVE`,

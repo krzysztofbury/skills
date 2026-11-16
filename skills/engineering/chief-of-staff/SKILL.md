@@ -31,7 +31,7 @@ for anything missing and offer to save it.
 | Column | Meaning | Who moves a card here |
 |---|---|---|
 | Backlog | written, not approved | you, from the owner's request |
-| Ready | approved to build | you, only on the owner's go |
+| Ready | approved to build | you, only on the owner's go or a `main-red` label |
 | Building | a developer is on it | you, when you start one |
 | Review | pull request open | you, on `STATUS: READY` |
 | Blocked | waits on the owner | you, on any 🙋 line or a blocking first line |
@@ -102,6 +102,12 @@ Ready, remove the label and say so in your `CoS:` note; ignore one added by
 anyone else. When you are the chat side and cannot move cards, adding the
 `go` label on the owner's word is how you pass the go on.
 
+The one exception is an issue labelled `main-red`, which a developer files
+when `main` itself fails CI and every open branch waits on it. When the
+owner's account opened it and added that label (checked as for `go`), the
+label is its go: move it to Ready, keep the label, and say so in your
+`CoS:` note. Its fix still meets review and the escalation policy.
+
 ## 2. Dispatch
 
 A Ready card whose `Blocked by #N` issue is still open stays in Ready and is
@@ -111,7 +117,7 @@ Count live runs with the runner when it supports it
 (`agent-run running <repo>`), so a pass never exceeds `max_parallel`. On each
 pass, for every Ready card whose `Blocked by #N` issues are all
 closed, up to `max_parallel` running at once: move it to Building and start
-`developer`. Choose the tier:
+`developer`, a `main-red` card before every other. Choose the tier:
 
 | Work | Tier |
 |---|---|

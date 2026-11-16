@@ -20,6 +20,12 @@ writer reviewing its own work misses the same things twice.
   without a test, and secrets or personal data in code, fixtures or logs.
 - Check the evidence: the commands listed in the pull request must fit the
   change and their results must be plausible. Rerun a check when in doubt.
+- Check that every new or changed test went red on `main`, with the failing
+  line in the pull request, and ask what plausible wrong version would still
+  pass it: an off-by-one, the narrowest width, the empty or longest input,
+  the other platform. A test that cannot tell the change from that version
+  is a finding; name the case it misses. When you find a bug the tests did
+  not catch, the finding names the test that would have.
 - Note anything the approver should weigh, such as a change to a deploy,
   dependency, migration or auth file, even when the code itself is fine.
 
