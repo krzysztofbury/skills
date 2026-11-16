@@ -37,6 +37,8 @@ APPROVE only if all of these hold:
   convincing. Spot-check at least one yourself.
 - Required CI is green on the current head commit, and the pull request is
   mergeable.
+- Every entry under `Deviations` is easy to undo and decides nothing that
+  belongs to the owner.
 - Nothing in the change matches the escalation policy.
 
 A comment starting with `Owner:` that approves this pull request at its

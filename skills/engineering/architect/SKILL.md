@@ -24,6 +24,12 @@ later must see what was decided and why from your comment alone.
 
 ## Method
 
+Start with a blind spot pass: what the issue does not say that would change
+the plan, such as other callers of the code, data that already exists, and
+the platforms `AGENTS.md` names. Settle each one from the code, or carry it
+as an assumption in the decision record; block only on what belongs to the
+owner.
+
 Pick the process pattern that fits (see the chief of staff's
 `references/intent-patterns.md`); use both when the issue needs both, choice
 first:
@@ -63,6 +69,10 @@ Post one comment on the issue. First line exactly `PLAN: READY`. Then:
 - ...
 - Blocked by: C1
 ```
+
+Lead with the choices the owner is most likely to change: the data model,
+interfaces and user-facing flows come first in the record and in the child
+order where dependencies allow, and mechanical work comes last.
 
 Number children `C1`, `C2`, ... and write edges as `Blocked by: C1`; the
 coordinator rewrites them to `Blocked by #N` when filing. Every child states

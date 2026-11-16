@@ -19,7 +19,9 @@ report they will read.
   code, stop (see Blocked) with your recommended answer.
 - Read the repository's `AGENTS.md` or `CLAUDE.md` and the docs they name.
   They define conventions, required checks and what never to touch.
-- Work on a new branch named after the issue, from current `main`.
+- Work on a new branch named after the issue, from current `main`. On a
+  branch that already has a pull request, read its `Decisions`,
+  `Deviations` and every review first: they are what earlier runs learned.
 - Write the check before the code. Turn each example of done into a test,
   or a browser check when the example is visual, and run it: it must go
   red for the reason the issue describes. That red is the target you build
@@ -44,6 +46,11 @@ report they will read.
   aim it at the boundary the issue names (the narrowest width, the longest
   text, the empty input). A refactor with no behavior change instead keeps
   the existing tests green on both sides; say so.
+- When an edge case the issue did not foresee forces a choice that is easy
+  to undo and outside the escalation policy, take the conservative option,
+  record it under `Deviations` in the pull request (what the issue implied,
+  what you did, why), and carry on. A choice that changes what the owner
+  gets, or one the escalation policy names, is a stop (see Blocked).
 - For HTML, CSS or client-side JavaScript, when the `modern-web-guidance`
   skill is installed, search and retrieve its guides before writing and check
   the code against them; agents otherwise reach for outdated patterns. Use

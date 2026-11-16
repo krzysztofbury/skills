@@ -5,6 +5,25 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.7.0] - 2026-11-16
+
+### Added
+
+- `chief-of-staff` finds a request's unknowns before drafting the issue: a
+  blind spot pass over the repository's `AGENTS.md` and the code the request
+  touches, an interview one question at a time with the biggest one first,
+  and a prototype when the owner cannot yet say what good looks like. The
+  accepted defaults become the issue's Assumptions and its examples of done
+  cover the boundaries found.
+- `developer` takes the conservative option for an unforeseen edge case that
+  is easy to undo and outside the escalation policy, records it under
+  `Deviations` and carries on; a restarted run reads `Decisions`,
+  `Deviations` and the reviews first. `approver` checks every deviation is
+  easy to undo and decides nothing that belongs to the owner.
+- `architect` starts with a blind spot pass and leads the plan with the
+  choices the owner is most likely to change. `designer` compares against a
+  prototype or mock the issue names as its target.
+
 ## [4.6.0] - 2026-11-16
 
 ### Added

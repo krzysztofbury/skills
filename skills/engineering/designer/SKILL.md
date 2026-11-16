@@ -12,7 +12,9 @@ what you looked at, what you found and why.
 
 ## Look at it
 
-Read the linked issue first: the intent decides what "right" means. Then try
+Read the linked issue first: the intent decides what "right" means, and a
+prototype or mock the issue names as its target is the reference to compare
+with. Then try
 to see the change running: a preview deployment linked in the pull request,
 or the project's local run command. When you can:
 
