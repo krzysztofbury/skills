@@ -20,6 +20,12 @@ report they will read.
 - Read the repository's `AGENTS.md` or `CLAUDE.md` and the docs they name.
   They define conventions, required checks and what never to touch.
 - Work on a new branch named after the issue, from current `main`.
+- Write the check before the code. Turn each example of done into a test,
+  or a browser check when the example is visual, and run it: it must go
+  red for the reason the issue describes. That red is the target you build
+  against. An example only the owner can check (on a device, against a live
+  account) becomes a manual check in the pull request, linked with
+  `Refs #N`.
 
 ## While editing
 
@@ -31,6 +37,13 @@ report they will read.
   same pull request; for Python or SQL tests, follow
   [the test audit](references/test-audit.md). When something fails or the
   design is open, work by [debugging and design](references/debugging-and-design.md).
+- Every new or changed test must go red without your change: run it on
+  `main`'s code (the tests on top of `main`, or your source change
+  reverted) and keep the failing line. A test that stays green there proves
+  nothing, and neither does one a plausible wrong version would also pass:
+  aim it at the boundary the issue names (the narrowest width, the longest
+  text, the empty input). A refactor with no behavior change instead keeps
+  the existing tests green on both sides; say so.
 - For HTML, CSS or client-side JavaScript, when the `modern-web-guidance`
   skill is installed, search and retrieve its guides before writing and check
   the code against them; agents otherwise reach for outdated patterns. Use
@@ -48,7 +61,9 @@ report they will read.
 
 All of these, or the work is not done:
 
-1. The issue's own verification passes, run by you, with the output kept.
+1. The issue's own verification passes, run by you, with the output kept,
+   and each new or changed test shows its red line on `main` beside its
+   green run on your head.
 2. The project's required checks pass locally (tests, lint, type checks).
 3. A pull request is open: what changed and why, the issue link, the commands
    you ran with their results, and anything deliberately left out. Put the
@@ -64,11 +79,25 @@ All of these, or the work is not done:
    not have to guess why it looks the way it does; skip the section only when
    there was nothing to choose.
 4. CI is green on the head commit you pushed. If CI fails, fix it or stop.
-   A failure your change did not cause (a new advisory against a dependency,
-   a tool that broke on `main`) is still yours when the fix is small: update
-   that dependency in this pull request, within the project's dependency
-   rules, and say why in `Decisions`. Stop only when the fix needs the owner,
-   such as a major version or a change the escalation policy names.
+   When the failure is not in your diff and would fail on `main` today (the
+   same check fails on `main`'s newest run, or an advisory names a package
+   your branch did not change), `main` is red, and making it green is separate work that every open
+   branch needs: keep it out of this pull request. Find the open issue
+   labelled `main-red`, or file one titled `main is red: <check>` with the
+   failing check, the `main` run link, the cause (each advisory ID for an
+   audit) and the smallest fix, and add the label `main-red`. Then report
+   `STATUS: BLOCKED` with a `Blocked by #N` line naming it; you are
+   restarted when it closes. A failure only your branch has is yours to fix.
+
+## A `main-red` issue
+
+When your issue carries `main-red`, make the failing check pass on `main`
+and change nothing else. For an advisory, move each affected package to the
+nearest release that fixes it, within its major version when one exists,
+and list each package with its old and new version and the advisory ID it
+fixes; the approver merges that alone. When an advisory's only fix is a
+major version or a new package, report `STATUS: BLOCKED` with a 🙋 line
+instead: that choice is the owner's.
 
 Hand the pull request to the `reviewer` role; the `approver` decides the
 merge. Never merge your own work.

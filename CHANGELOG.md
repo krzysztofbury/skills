@@ -5,6 +5,26 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.6.0] - 2026-11-16
+
+### Added
+
+- `developer` writes the check before the code: each example of done in the
+  issue becomes a test or browser check that goes red first. Every new or
+  changed test must also go red on `main`, with the failing line in the pull
+  request next to its green run.
+- `reviewer` checks that red line and asks what plausible wrong version
+  would still pass each test; a bug the tests missed comes with the test
+  that would have caught it.
+- When `main` itself fails CI, the developer files one `main-red` issue,
+  keeps the fix out of its own pull request and waits on it with
+  `Blocked by #N`. `chief-of-staff` treats the owner account's `main-red`
+  label as that issue's go and builds it before other Ready cards.
+- `approver` merges a pull request that only moves already-locked packages
+  to patch or minor releases fixing named advisories, after confirming each
+  advisory and a green dependency audit, even where the repository policy
+  escalates dependency files. A repository policy can turn this off.
+
 ## [4.5.0] - 2026-11-15
 
 ### Added
