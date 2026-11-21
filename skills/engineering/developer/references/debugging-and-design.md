@@ -26,6 +26,9 @@ metrics, test results or project conventions.
 - Gather the error, reproduction conditions and relevant code. Test a
   falsifiable hypothesis against the error, trace or reproduction before
   changing anything; then make the smallest correct change when authorized.
+  Report a cause as found only when the evidence rules out the
+  alternatives; until then it is a hypothesis, stated with the check that
+  would confirm it.
 - Add a regression test when it protects the failing behavior. For Python or SQL
   tests, follow [test-audit.md](test-audit.md).
 - For design, establish the workload, failure modes and constraints from code

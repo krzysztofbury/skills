@@ -5,6 +5,22 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.8.0] - 2026-11-21
+
+### Added
+
+- Base rules: a new Questions & Causes section. Take a conventional default
+  and say so instead of asking; name a cause only once evidence rules out
+  the alternatives; write a project decision the user settles into the
+  project document that governs it.
+- Base rules: delete scratch in the call that created it or by its literal
+  path, pass multi-line pull request and commit text with `--body-file` or
+  `-F`, and after a merge that releases nothing watch `main`'s CI in the
+  background, keeping the hard wait before a tag, release or deploy. Each
+  shape is one a guard hook can check without holding the command.
+- `developer` reports a cause as found only with evidence that rules out the
+  alternatives, otherwise as a hypothesis with its confirming check.
+
 ## [4.7.0] - 2026-11-16
 
 ### Added
