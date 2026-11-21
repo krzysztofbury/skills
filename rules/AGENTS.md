@@ -24,6 +24,9 @@ OpenCode, and similar). `scripts/install.sh` generates `CLAUDE.md` /
   --exit-status`), not `gh pr checks --watch`, which has hung after checks
   finished. While it runs, compare each job's elapsed time with its finished
   siblings and report an outlier at once instead of waiting.
+- After merging a pull request that releases nothing, watch `main`'s CI run
+  in the background and carry on; report it only if it fails. Before a tag,
+  release or deploy, wait on `main`'s run for that exact commit.
 - A visible UI change is not "done" without visual verification in a real
   browser. If a visual check is impossible, say so explicitly instead of
   claiming completion from grep or curl output.
@@ -57,6 +60,21 @@ OpenCode, and similar). `scripts/install.sh` generates `CLAUDE.md` /
   `$CMD args`. zsh does not split an unquoted variable into words, so it runs
   a program literally named `uv run --no-sync` (command not found) or, in a
   loop or test, silently does nothing. Use a shell function or an array.
+- Pass multi-line pull request, issue and commit text from a scratch file
+  (`--body-file`, `git commit -F`). A permission hook cannot inspect a
+  `$(cat <<EOF ...)` substitution, so it holds the command for review.
+
+## Questions & Causes
+
+- When a choice has a conventional default (a name, a file's place, a flag,
+  the obvious next step), take it, say which one you took, and carry on. Ask
+  only when the answer changes what the user gets or cannot be undone.
+- Name a cause only once evidence rules out the alternatives: a
+  reproduction, a log line, or a change that makes the failure go away.
+  Until then, call it a hypothesis and name the check that would confirm it.
+- When the user settles how a project does something (a release step, a
+  review rule), write it into the project document that governs it, in the
+  same change; a decision kept only in chat is repeated the wrong way later.
 
 ## Scratch Space & Cleanup
 
@@ -69,6 +87,11 @@ OpenCode, and similar). `scripts/install.sh` generates `CLAUDE.md` /
   `curl -O`, `uv build`) an explicit scratch output path.
 - Keep Git worktrees, source changes, and durable deliverables outside
   disposable scratch. Delete only paths allocated by the current task.
+- Delete scratch in the call that created it (`agent-scratch`, or
+  `D=$(mktemp -d) && ... ; rm -rf "${D:?}"`), or in a later call by its
+  literal path. A guard hook cannot check a path read back through
+  `$(cat file)`, a glob or a variable set in an earlier call, so it holds the
+  command for review.
 - The same holds for branches, tags, images, containers and volumes: delete
   them by the names this task created, never by a pattern or bulk selector
   such as `git branch --merged` or `docker volume prune`.
