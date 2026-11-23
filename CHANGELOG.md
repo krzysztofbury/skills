@@ -5,6 +5,16 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.9.0] - 2026-11-23
+
+### Added
+
+- `chief-of-staff` closes the loop after shipping: a card that reaches Done
+  with something the owner can try gets a `check-shipped` label and a
+  "Shipped, try it" line in the digest with the issue's example of done.
+  The owner's answer either clears the label or becomes a `Follow-up to #N`
+  issue through intake. The board keeps its columns.
+
 ## [4.8.0] - 2026-11-21
 
 ### Added
