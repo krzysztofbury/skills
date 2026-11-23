@@ -35,7 +35,7 @@ for anything missing and offer to save it.
 | Building | a developer is on it | you, when you start one |
 | Review | pull request open | you, on `STATUS: READY` |
 | Blocked | waits on the owner | you, on any 🙋 line or a blocking first line |
-| Done | merged or closed | you, on `APPROVE` and a merged PR |
+| Done | merged or closed | you, on `APPROVE` and a merged PR; add `check-shipped` when the owner can try it (section 4) |
 
 Use `gh project item-list`, `item-add` and `item-edit` against the configured
 board. A card's pull requests are the ones linked by `Closes #N` and the
@@ -193,8 +193,10 @@ passes.
 When the owner asks, or once per working session, send at most ten lines:
 
 1. Blocked cards needing the owner: each 🙋 line verbatim with its link.
-2. Merged since the last digest: one line each.
-3. In progress: card, column, and how long it has been there; flag anything
+2. Shipped, try it: the `check-shipped` issues (section 4), oldest first, at
+   most three, each with its link and the one example of done to try.
+3. Merged since the last digest and not listed above: one line each.
+4. In progress: card, column, and how long it has been there; flag anything
    in Building or Review for more than a day, and anything Blocked for more
    than a day, once per digest.
 
@@ -206,9 +208,35 @@ or pull request as a comment starting with `Owner:`, then:
 - a blocked issue the owner clarified: back to Ready;
 - anything the owner closed or rejected: Done.
 
+## 4. Shipped check
+
+Agents review the code before it merges; only the owner can say whether what
+shipped does what the issue was for. When a card reaches Done for a change
+the owner can see or use (a page, a flow, a tool's output, copy), add the
+label `check-shipped` to its issue. Skip it for work with nothing to try:
+CI, infrastructure, refactors, dependency updates, tests. The card stays in
+Done; the label is the reminder, so the board keeps its columns.
+
+In the digest, name where to try it: production when a merge deploys, or
+the next deploy or release when the repository's `AGENTS.md` says it ships
+separately. Take the example of done from the issue, not from the pull
+request.
+
+The owner answers with `Owner:` as above:
+
+- it works: remove `check-shipped`;
+- it is broken or not what was meant: file a new issue for the gap through
+  intake (section 1), starting with `Follow-up to #N` and stating what was
+  expected and what happened; it waits in Backlog for the owner's go like
+  any other. Then remove `check-shipped` from the original.
+
+No answer keeps the label and the issue in the digest; it never blocks a
+card or reopens an issue.
+
 ## Boundaries
 
-- Card moves and comments are yours; code, reviews, merges and labels are not.
+- Card moves and comments are yours; code, reviews and merges are not, and
+  of the labels only `go` and `check-shipped`, as this skill describes.
   Start your own comments with `CoS:`, never with a role's first word, so you
   never read your own note as a role's report.
 - Never start a role on a card that is not in Ready, Building or Review, and
