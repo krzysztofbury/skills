@@ -21,6 +21,7 @@ Options: --baseline PATH (default .agents/audit-baseline.json).
 Copy this file into the project (scripts/audit_ratchet.py) and run `check`
 in CI. Standard library only.
 """
+
 import argparse
 import ast
 import io
@@ -30,12 +31,15 @@ import subprocess
 import sys
 import tokenize
 from pathlib import Path
+from typing import Any
 
 VERSION = 1
 DEFAULT_BASELINE = ".agents/audit-baseline.json"
 KINDS = ("comments", "to_delete")
+Counts = dict[str, dict[str, int]]
 PRAGMA = re.compile(
-    r"^#\s*(noqa\b|type:\s*ignore|pragma:|pyright:|mypy:|fmt:|isort:|ruff:|nosec\b|pylint:)")
+    r"^#\s*(noqa\b|type:\s*ignore|pragma:|pyright:|mypy:|fmt:|isort:|ruff:|nosec\b|pylint:)"
+)
 CODING = re.compile(r"^#.*coding[:=]")
 WHY = re.compile(r"^#\s*Why:\s*\S")
 
@@ -62,7 +66,7 @@ def count_comments(source: str) -> int:
     return total
 
 
-def dotted(node) -> str:
+def dotted(node: ast.AST) -> str:
     parts = []
     while isinstance(node, ast.Attribute):
         parts.append(node.attr)
@@ -80,60 +84,75 @@ def count_to_delete(source: str, path: str) -> int:
         if isinstance(node, ast.Call) and dotted(node.func).endswith("mark.to_delete"):
             calls.add(id(node.func))
             issue = next((k.value for k in node.keywords if k.arg == "issue"), None)
-            if not (isinstance(issue, ast.Constant) and isinstance(issue.value, int)
-                    and not isinstance(issue.value, bool) and issue.value > 0):
+            if not (
+                isinstance(issue, ast.Constant)
+                and isinstance(issue.value, int)
+                and not isinstance(issue.value, bool)
+                and issue.value > 0
+            ):
                 raise RatchetError(
-                    f"{path}:{node.lineno}: to_delete needs issue=<issue number>")
+                    f"{path}:{node.lineno}: to_delete needs issue=<issue number>"
+                )
             total += 1
     for node in ast.walk(tree):
-        if (isinstance(node, ast.Attribute) and node.attr == "to_delete"
-                and dotted(node).endswith("mark.to_delete") and id(node) not in calls):
+        if (
+            isinstance(node, ast.Attribute)
+            and node.attr == "to_delete"
+            and dotted(node).endswith("mark.to_delete")
+            and id(node) not in calls
+        ):
             raise RatchetError(
-                f"{path}:{node.lineno}: to_delete needs issue=<issue number>")
+                f"{path}:{node.lineno}: to_delete needs issue=<issue number>"
+            )
     return total
 
 
-def tracked_files(roots):
+def tracked_files(roots: list[str]) -> list[str]:
     try:
-        out = subprocess.run(["git", "ls-files", "-z", "--", *roots],
-                             capture_output=True, check=True).stdout.decode()
+        out = subprocess.run(
+            ["git", "ls-files", "-z", "--", *roots], capture_output=True, check=True
+        ).stdout.decode()
         files = [f for f in out.split("\0") if f.endswith(".py")]
     except (OSError, subprocess.CalledProcessError):
         files = [str(p) for r in roots for p in Path(r).rglob("*.py")]
     return sorted(f for f in files if Path(f).is_file())
 
 
-def measure(roots):
-    counts = {kind: {} for kind in KINDS}
+def measure(roots: list[str]) -> Counts:
+    counts: Counts = {kind: {} for kind in KINDS}
     for path in tracked_files(roots):
         source = Path(path).read_text(encoding="utf-8")
-        found = {"comments": count_comments(source),
-                 "to_delete": count_to_delete(source, path)}
+        found = {
+            "comments": count_comments(source),
+            "to_delete": count_to_delete(source, path),
+        }
         for kind in KINDS:
             if found[kind]:
                 counts[kind][path] = found[kind]
     return counts
 
 
-def load(path):
+def load(path: str) -> dict[str, Any]:
     try:
-        data = json.loads(Path(path).read_text(encoding="utf-8"))
+        data: dict[str, Any] = json.loads(Path(path).read_text(encoding="utf-8"))
     except FileNotFoundError:
-        raise RatchetError(f"no baseline at {path}; run init first")
+        raise RatchetError(f"no baseline at {path}; run init first") from None
     if data.get("version") != VERSION or not data.get("roots"):
-        raise RatchetError(f"{path}: unsupported baseline (version {VERSION} with roots)")
+        raise RatchetError(
+            f"{path}: unsupported baseline (version {VERSION} with roots)"
+        )
     return data
 
 
-def save(path, roots, counts):
-    data = {"version": VERSION, "roots": roots}
+def save(path: str, roots: list[str], counts: Counts) -> None:
+    data: dict[str, Any] = {"version": VERSION, "roots": roots}
     data.update({kind: dict(sorted(counts[kind].items())) for kind in KINDS})
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
 
-def rises(baseline, counts):
-    out = []
+def rises(baseline: dict[str, Any], counts: Counts) -> list[str]:
+    out: list[str] = []
     for kind in KINDS:
         old = baseline.get(kind, {})
         for path, n in counts[kind].items():
@@ -142,12 +161,16 @@ def rises(baseline, counts):
     return out
 
 
-def falls(baseline, counts):
-    return sum(1 for kind in KINDS for path, n in baseline.get(kind, {}).items()
-               if counts[kind].get(path, 0) < n)
+def falls(baseline: dict[str, Any], counts: Counts) -> int:
+    return sum(
+        1
+        for kind in KINDS
+        for path, n in baseline.get(kind, {}).items()
+        if counts[kind].get(path, 0) < n
+    )
 
 
-def main(argv=None):
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("command", choices=("init", "check", "update", "report"))
     parser.add_argument("--baseline", default=DEFAULT_BASELINE)
@@ -161,8 +184,10 @@ def main(argv=None):
                 raise RatchetError("init needs --roots")
             counts = measure(args.roots)
             save(args.baseline, args.roots, counts)
-            print(f"wrote {args.baseline}: " + ", ".join(
-                f"{sum(counts[k].values())} {k}" for k in KINDS))
+            print(
+                f"wrote {args.baseline}: "
+                + ", ".join(f"{sum(counts[k].values())} {k}" for k in KINDS)
+            )
             return 0
         baseline = load(args.baseline)
         roots = baseline["roots"]
@@ -171,7 +196,9 @@ def main(argv=None):
         if args.command == "report":
             for kind in KINDS:
                 top = sorted(counts[kind].items(), key=lambda kv: -kv[1])[:10]
-                print(f"{kind}: {sum(counts[kind].values())} in {len(counts[kind])} files")
+                print(
+                    f"{kind}: {sum(counts[kind].values())} in {len(counts[kind])} files"
+                )
                 for path, n in top:
                     print(f"  {n:5d}  {path}")
             return 0
@@ -179,8 +206,11 @@ def main(argv=None):
             print("audit ratchet: counts rose above the baseline:", file=sys.stderr)
             for line in up:
                 print(f"  {line}", file=sys.stderr)
-            print("Remove the new comment or marker. A one-line `# Why: ...` comment "
-                  "and tool pragmas are not counted.", file=sys.stderr)
+            print(
+                "Remove the new comment or marker. A one-line `# Why: ...` comment "
+                "and tool pragmas are not counted.",
+                file=sys.stderr,
+            )
             return 1
         if args.command == "update":
             save(args.baseline, roots, counts)
@@ -189,8 +219,11 @@ def main(argv=None):
         lower = falls(baseline, counts)
         if lower:
             # Lock in every fall, so a later change cannot spend the headroom.
-            print(f"audit ratchet: {lower} counts fell below the baseline; run "
-                  f"`audit_ratchet.py update` and commit {args.baseline}", file=sys.stderr)
+            print(
+                f"audit ratchet: {lower} counts fell below the baseline; run "
+                f"`audit_ratchet.py update` and commit {args.baseline}",
+                file=sys.stderr,
+            )
             return 1
         print("audit ratchet: ok")
         return 0

@@ -5,6 +5,14 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.10.1] - 2026-11-25
+
+### Fixed
+
+- `test-audit`'s `scripts/audit_ratchet.py` is fully typed and formatted, so
+  a project running strict mypy and ruff over `scripts/` takes the copy
+  unchanged; a missing baseline now raises `RatchetError` with `from None`.
+
 ## [4.10.0] - 2026-11-25
 
 ### Added
