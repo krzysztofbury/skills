@@ -30,7 +30,7 @@ metrics, test results or project conventions.
   alternatives; until then it is a hypothesis, stated with the check that
   would confirm it.
 - Add a regression test when it protects the failing behavior. For Python or SQL
-  tests, follow [test-audit.md](test-audit.md).
+  tests, follow the `test-audit` skill's test proof.
 - For design, establish the workload, failure modes and constraints from code
   and user context; do not assume the stack, scale, latency target or data
   sensitivity. Explain decisive safety, cost and complexity trade-offs. Prefer
