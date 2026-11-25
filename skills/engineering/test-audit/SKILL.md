@@ -27,10 +27,16 @@ Answer three questions for each test, in order; the first "no" decides.
 1. **Does the behavior it names still exist and matter?** No: **Stale**. It
    references removed code, a retired rule, or a seam kept alive only by
    tests.
-2. **Can you name a plausible wrong change, beyond a typo the linter or type
-   checker already catches, that makes it fail for its intended reason?** No:
-   **Coverage Assert**. It restates code that is obvious on reading it: a
-   default, a constant, a getter, a mirror of the implementation.
+2. **Is the code under test obvious on reading, with nothing outside the
+   code depending on the detail?** Yes: **Coverage Assert**. Obvious code is
+   a default or empty value, a constant, a plain insert and read-back, a
+   not-found branch, a small helper's arithmetic, a mirror of the
+   implementation; that an off-by-one would fail the test does not save it,
+   since reading the code gives the same confidence. A short test still pins
+   a contract when someone outside the code would notice the change: a
+   user, a caller that checks the value, a bill, a security or data
+   guarantee, an exact limit that a spec or another service sets. That is a
+   Business Test, however small.
 3. **Is the asserted outcome produced by the real code path?** No:
    **Failsafe**. It reassures the owner or an agent that the work runs
    without checking the result: no assertion or only "no exception", a mock

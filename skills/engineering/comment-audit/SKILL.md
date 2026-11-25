@@ -37,6 +37,25 @@ deliberate limit with its reason is a Decision Record; a "Why" that excuses a
 shortcut is an Excuse. When it reads as both, it is an Excuse: the issue
 keeps the reason, and the code gets fixed.
 
+To tell a Tautology from a Decision Record, ask whether the comment says
+**what** the code does or **why** it is this way. Saying what the next lines
+do, which the names and calls already show, is a Tautology, however wise it
+sounds. Giving a reason the code cannot show (`# Sorted first, so the digest
+does not depend on dict order.`) or naming which part matters (`# Only the
+last retry counts; earlier ones were expected to fail.`) is a Decision
+Record, even when it is short.
+
+- In a test, a comment that states the rule the next assertion checks is a
+  Tautology: the test's name and assertion carry the rule (rename the test
+  when its name does not).
+- In a test, a comment that shows how an expected value or a fixture follows
+  from the inputs (`# Counting the salary too: 120% of essential cost.`
+  above `== 25`) is a Decision Record: the reader cannot derive it from the
+  code.
+- A comment explaining a workaround that could be avoided (a `sys.path`
+  insert where `python -m` would do, hand-cleaning a shared test database)
+  is an Excuse.
+
 Record each comment as `path:line - category - one-line reason`. When you
 cannot tell whether the reason is still true, check the code and history;
 still unsure, keep it and put it on the owner's list.
