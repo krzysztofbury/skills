@@ -30,6 +30,8 @@ its own name, so the group does not change how a skill is invoked.
 | `engineering` | `chief-of-staff` | Coordinate one project's GitHub board: intent-shaped issues, card moves, role runs on a model tier, and a short owner digest. |
 | `engineering` | `developer` | Implement one queued issue on its own branch, with its edge cases and evidence, and report `STATUS: READY` or `BLOCKED`. |
 | `engineering` | `reviewer` | Review one pull request against its issue and evidence and give `VERDICT: PASS` or `CHANGES`; never merges. |
+| `engineering` | `test-audit` | Sort tests into Business, Stale, Coverage Assert or Failsafe, delete or mark them with an issue, and ratchet the rest; also the bar for writing a test. |
+| `engineering` | `comment-audit` | Sort comments into Tautology, Excuse, Stale or Decision Record, delete or file them, keep decisions as `# Why:` or an ADR, and ratchet the count. |
 | `engineering` | `architect` | Split a large or open-ended issue into a decision record and intent-shaped child issues with `Blocked by` edges: `PLAN: READY` or `BLOCKED`. |
 | `engineering` | `devops` | CI, infrastructure and release changes as pull requests, and production deploys only after the owner approves the exact commit: `DEPLOY: DONE` or `BLOCKED`. |
 | `engineering` | `security-auditor` | Security review of a pull request with an exploit scenario per finding and hypotheses kept separate: `VERDICT: PASS` or `CHANGES`. |

@@ -63,6 +63,7 @@ while IFS= read -r -d '' file; do bash -n "$file"; done < <(git ls-files -z '*.s
 node --test tests/*.test.mjs integrations/opendeck/dev.krzysztof.agents.sdPlugin/test/*.test.js
 bash skills/agent-ops/council/scripts/council_test.sh
 bash skills/agent-ops/retro/scripts/ledger_test.sh
+python3 skills/engineering/test-audit/scripts/test_audit_ratchet.py
 ```
 
 Exercise every hook with safe and confirmation-required JSON fixtures. Review

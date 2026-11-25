@@ -37,8 +37,13 @@ report they will read.
   features) goes into the pull request as a suggestion, not into the diff.
 - Follow the project's style. A behavior change ships with its tests in the
   same pull request; for Python or SQL tests, follow
-  [the test audit](references/test-audit.md). When something fails or the
+  the `test-audit` skill's test proof. When something fails or the
   design is open, work by [debugging and design](references/debugging-and-design.md).
+- Let names and structure carry the meaning. A comment you add is a tool
+  pragma or one line starting `# Why: ` with a non-obvious reason; a
+  shortcut you leave goes into the pull request as a follow-up, where the
+  coordinator can file it. `to_delete` test markers belong to a test audit
+  (the `comment-audit` and `test-audit` skills).
 - Every new or changed test must go red without your change: run it on
   `main`'s code (the tests on top of `main`, or your source change
   reverted) and keep the failing line. A test that stays green there proves

@@ -1,8 +1,8 @@
-# Test audit: Python and SQL
+# Test proof: Python and SQL
 
 Use the same evidence bar when writing a test and when deciding whether an
 existing test should stay. Prefer confidence in behavior over test count or
-deletion count. This skill adapts ideas from
+deletion count. This file adapts ideas from
 [OpenClaw's test-audit](https://github.com/openclaw/openclaw/blob/main/.agents/skills/test-audit/SKILL.md);
 see [the upstream MIT license](LICENSE.upstream).
 

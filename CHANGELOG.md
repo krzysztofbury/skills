@@ -5,6 +5,29 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.10.0] - 2026-11-25
+
+### Added
+
+- `test-audit` skill: sort every test into Business Test, Stale, Coverage
+  Assert or Failsafe; delete Stale tests, mark the low-value ones
+  `to_delete(issue=N)` with one issue per module, and keep Business Tests.
+  It absorbs the developer's and reviewer's two copies of the test audit
+  reference as `references/test-proof.md`.
+- `comment-audit` skill: sort every comment into Tautology, Excuse, Stale or
+  Decision Record; delete the first three (filing an issue per module for
+  each excused hack) and keep decisions as one `# Why:` line or an ADR.
+- `scripts/audit_ratchet.py` (in `test-audit`): a standard-library ratchet
+  that counts comments and `to_delete` markers per file against a committed
+  baseline and fails CI when either rises or falls without the baseline
+  lowered. Pragmas and one-line `# Why:` comments are not counted.
+- `developer` writes only pragmas and one-line `# Why:` comments; `reviewer`
+  flags new tautological or excusing comments and new low-value tests.
+
+The categorisation wording of both skills was tuned against an
+owner-adjudicated label set from four Python projects; on held-out tests
+the tuned `test-audit` found 8 of 8 low-value tests against 4 of 8 before.
+
 ## [4.9.0] - 2026-11-23
 
 ### Added

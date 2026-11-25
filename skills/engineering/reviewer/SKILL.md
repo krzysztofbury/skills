@@ -15,9 +15,13 @@ writer reviewing its own work misses the same things twice.
 - Read the linked issue, then the full diff. Judge the change against the
   issue's intent and constraints, not against your own preferred design.
 - Judge correctness by [the review method](references/review-method.md) and
-  Python or SQL tests by [the test audit](references/test-audit.md). Look for
+  Python or SQL tests by the `test-audit` skill's test proof. Look for
   scope creep (files or behavior the issue did not ask for), changed behavior
   without a test, and secrets or personal data in code, fixtures or logs.
+- A new comment that repeats the code or excuses a shortcut (a TODO, "for
+  now", "workaround") is a finding, and so is a new test the `test-audit`
+  categories call Coverage Assert or Failsafe. A one-line `# Why: ` with a
+  real reason, or a tool pragma, is fine.
 - Check the evidence: the commands listed in the pull request must fit the
   change and their results must be plausible. Rerun a check when in doubt.
 - Check that every new or changed test went red on `main`, with the failing
