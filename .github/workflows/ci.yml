@@ -39,6 +39,7 @@ jobs:
       - run: bash skills/agent-ops/retro/scripts/ledger_test.sh
       - run: pip install pygments==2.21.0
       - run: python3 skills/engineering/test-audit/scripts/test_audit_ratchet.py
+      - run: python3 skills/engineering/test-audit/scripts/test_audit_inventory.py
       - run: shellcheck hooks/claude/*.sh integrations/claude/*.sh scripts/*.sh
       - name: Test Claude guards
         run: |

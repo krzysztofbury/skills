@@ -66,6 +66,14 @@ Record each comment as `path:line - category - one-line reason`. When you
 cannot tell whether the reason is still true, check the code and history;
 still unsure, keep it and put it on the owner's list.
 
+For more comments than one context holds, follow the `test-audit` skill's
+"Labelling at scale" with `audit_inventory.py comments --roots <roots>
+--out <dir> [--languages py sql ...]`; give each labeller the section
+above and its batch. Every comment it would delete shows in the diff:
+check each one before the change lands, since a test comment that shows
+how an expected value follows from its inputs is easily misread as a
+Tautology.
+
 ## Decision Records
 
 - **Local** (one function or line): rewrite it as a single line starting
