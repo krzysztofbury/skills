@@ -32,12 +32,20 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Skip a commit that is already released
+      # Why: back-to-back merges start one run per commit; only main's head is
+      # released, and its release includes the commits before it.
+      - name: Skip a commit that is already released or no longer main's head
         id: existing
         run: |
           tag=$(git tag --points-at "$SHA" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || true)
+          head=$(gh api "repos/$GH_REPO/commits/main" --jq .sha)
+          if [[ -n "$tag" ]]; then
+            echo "$SHA is already released as $tag."
+          elif [[ "$head" != "$SHA" ]]; then
+            tag=superseded
+            echo "$SHA is no longer main's head ($head); that commit's run releases both."
+          fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          [[ -z "$tag" ]] || echo "$SHA is already released as $tag."
 
       - name: Decide the version and write the notes
         if: steps.existing.outputs.tag == ''
