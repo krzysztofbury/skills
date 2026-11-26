@@ -76,6 +76,16 @@ OpenCode, and similar). `scripts/install.sh` generates `CLAUDE.md` /
   review rule), write it into the project document that governs it, in the
   same change; a decision kept only in chat is repeated the wrong way later.
 
+## Subagents
+
+- Start a subagent only when the work does not fit one context or needs an
+  independent read; speed alone is not a reason.
+- Name the model and effort on every subagent call. Opus for planning,
+  judgment and orchestration; Sonnet at low or medium effort for mechanical
+  or bulk work such as labelling, extraction and sweeps.
+- Run at most 3 at once, and size each batch so an agent stays under about
+  100k tokens of context.
+
 ## Scratch Space & Cleanup
 
 - Create disposable artifacts in a unique `mktemp -d` directory under a
