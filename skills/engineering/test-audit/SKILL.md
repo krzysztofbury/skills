@@ -90,8 +90,25 @@ committed baseline; both counts may only fall.
    already has it, compare it with this copy and take the newer one.
 2. Run `python scripts/audit_ratchet.py init --roots <source and test roots>`
    once; afterwards `update` after every change that lowers a count.
-3. Add `python scripts/audit_ratchet.py check` to CI next to the tests. It
-   fails when a count rises, or falls without the baseline lowered.
+   Python is counted by default. Add the project's other languages
+   (`--languages py sql js ts css html sh yaml toml`, or later
+   `extend --languages ...`); they are read with Pygments, which must be in
+   the project's locked dev dependencies (pytest already brings it).
+3. Run `check` where the project already runs its checks: as a local
+   pre-commit hook when CI runs pre-commit, otherwise as a CI step next to the
+   tests. It fails when a count rises, or falls without the baseline lowered;
+   `report --explain PATH` lists what it counted in one file.
+
+```yaml
+- repo: local
+  hooks:
+    - id: audit-ratchet
+      name: comment and marked-test ratchet
+      entry: uv run python scripts/audit_ratchet.py check
+      language: system
+      pass_filenames: false
+      always_run: true
+```
 
 ## Project rule
 

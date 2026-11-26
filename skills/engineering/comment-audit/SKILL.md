@@ -13,12 +13,16 @@ decision the code cannot show.
 
 Take the scope from the request: the whole repository or a named section.
 Audit `#` comments in Python and the equivalent line and block comments in
-other languages; the ratchet counts Python only.
+other languages (SQL, JavaScript and TypeScript, CSS, HTML and Jinja
+templates, shell, YAML, TOML); the ratchet counts every language its
+baseline enables.
 
 Out of scope, never counted or touched:
 
 - tool pragmas (`noqa`, `type: ignore`, `pragma:`, `pyright:`, `mypy:`,
-  `fmt:`, `isort:`, `ruff:`, `nosec`, `pylint:`), a shebang, an encoding line;
+  `fmt:`, `isort:`, `ruff:`, `nosec`, `pylint:`, `eslint-disable`, `@ts-`,
+  `prettier-ignore`, `stylelint-`, `shellcheck`), a shebang, an encoding line;
+- script metadata a tool reads (a PEP 723 `# /// script` block);
 - docstrings and any text a program reads at runtime, such as tool or CLI
   descriptions, help text and schema descriptions;
 - license headers and generated files.
@@ -85,6 +89,12 @@ both comments and marked tests); its Ratchet section has the setup. After
 the deletions, run `update` so the lower count is locked in, and add
 `check` to CI if the project does not run it yet.
 
+Also turn on the standard lint rules that catch the same comments where
+they are written, since an audit leaves few or no violations: Ruff's `FIX`
+(TODO, FIXME, XXX and HACK comments) and `ERA001` (commented-out code); in
+a project that uses ESLint, `no-warning-comments`, with ESLint's bulk
+suppressions (`--suppress-rule`) for any backlog.
+
 ## Project rule
 
 Add or update a short section in the project's `AGENTS.md`, scoped to what
@@ -96,7 +106,8 @@ was audited:
 - Let names and structure carry the meaning. A comment is a tool pragma or
   one line starting `# Why: ` that records a non-obvious reason; a reason
   that spans modules goes in `docs/adr/`.
-- Name a shortcut in an issue, not a comment.
+- Name a shortcut in an issue, not a comment; Ruff's `FIX` and `ERA001`
+  rules enforce it.
 - `scripts/audit_ratchet.py check` runs in CI; after a change that lowers a
   count, run `update` and commit `.agents/audit-baseline.json`.
 ```

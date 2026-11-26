@@ -5,6 +5,22 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.11.0] - 2026-11-26
+
+### Added
+
+- `test-audit`'s `scripts/audit_ratchet.py` counts comments in SQL,
+  JavaScript and TypeScript, CSS, HTML and Jinja templates, shell, YAML and
+  TOML as well as Python, read with Pygments so comment markers inside
+  strings never count. A baseline names its languages (`init --languages`,
+  `extend --languages`; a version 1 baseline stays Python only), and
+  `report --explain PATH` lists each counted line. Pragmas of those tools,
+  license headers and PEP 723 script metadata are exempt, as is a one-line
+  `Why:` comment in any syntax.
+- `test-audit` shows the ratchet as a local pre-commit hook, and
+  `comment-audit` recommends Ruff's `FIX` and `ERA001` rules (and ESLint's
+  `no-warning-comments` with bulk suppressions) next to the ratchet.
+
 ## [4.10.1] - 2026-11-25
 
 ### Fixed

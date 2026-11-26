@@ -2,6 +2,7 @@
 """Tests for audit_ratchet.py: python3 test_audit_ratchet.py"""
 import contextlib
 import io
+import json
 import os
 import subprocess
 import sys
@@ -38,6 +39,49 @@ class CountComments(unittest.TestCase):
 
     def test_why_needs_the_exact_prefix_and_text(self):
         self.assertEqual(ar.count_comments("# why: lower case\n# Why:\n"), 2)
+
+    def test_script_metadata_and_license_headers_are_exempt(self):
+        source = ("# /// script\n# dependencies = ['httpx']\n# ///\n"
+                  "# SPDX-License-Identifier: MIT\nx = 1  # counted\n")
+        self.assertEqual(ar.count_comments(source), 1)
+
+    def test_a_comment_that_mentions_global_state_still_counts(self):
+        self.assertEqual(ar.count_comments("# global state lives here\n"), 1)
+
+
+try:
+    import pygments  # noqa: F401
+except ImportError:
+    pygments = None
+
+
+@unittest.skipIf(pygments is None, "Pygments is needed for languages other than Python")
+class OtherLanguages(unittest.TestCase):
+    def lines(self, path, source):
+        return [line for line, _ in ar.comments(path, source)]
+
+    def test_javascript_skips_strings_templates_regexes_and_pragmas(self):
+        source = ("const s = '// no'; // one\n/* two\n   three */\n"
+                  "const r = /\\/\\//g; // eslint-disable-line no-x\n"
+                  "// Why: browsers reorder this.\nconst t = `${x} // no`;\n")
+        self.assertEqual(self.lines("a.mjs", source), [1, 2, 3])
+
+    def test_sql_counts_line_and_block_comments_outside_strings(self):
+        source = "-- one\nSELECT '-- no' AS x; /* two\nthree */\n/* Why: old rows stay. */\n"
+        self.assertEqual(self.lines("m.sql", source), [1, 2, 3])
+
+    def test_templates_count_html_and_jinja_comments_but_not_strings(self):
+        source = ("<p>{# one #}</p>\n<!-- two\nthree -->\n<script>// four\n"
+                  "let a = '<!-- no -->';</script>\n{# Why: shown twice. #}\n")
+        self.assertEqual(self.lines("page.html", source), [1, 2, 3, 4])
+
+    def test_shell_skips_the_shebang_strings_and_shellcheck(self):
+        source = "#!/bin/bash\necho '# no' # one\n# shellcheck disable=SC2086\n"
+        self.assertEqual(self.lines("run.sh", source), [2])
+
+    def test_an_unknown_suffix_is_an_error(self):
+        with self.assertRaises(ar.RatchetError):
+            list(ar.comments("a.rb", "# x\n"))
 
 
 class CountToDelete(unittest.TestCase):
@@ -109,6 +153,33 @@ class Cli(unittest.TestCase):
         self.assertIn("fell below the baseline", err)
         self.assertEqual(self.run_cli("update")[0], 0)
         self.assertEqual(self.run_cli("check")[0], 0)
+
+    def test_a_version_1_baseline_still_checks_python(self):
+        self.assertEqual(self.run_cli("init", "--roots", "src")[0], 0)
+        data = json.loads(Path(".agents/audit-baseline.json").read_text())
+        data["version"] = 1
+        del data["languages"]
+        Path(".agents/audit-baseline.json").write_text(json.dumps(data))
+        self.assertEqual(self.run_cli("check")[0], 0)
+
+    @unittest.skipIf(pygments is None, "Pygments is needed for languages other than Python")
+    def test_extend_adds_a_language_without_raising_the_others(self):
+        self.write("src/q.sql", "-- one\n-- two\nSELECT 1;\n")
+        self.assertEqual(self.run_cli("init", "--roots", "src")[0], 0)
+        self.write("src/a.py", "# one\n# two\n# three\nx = 1\n")
+        self.assertEqual(self.run_cli("extend", "--languages", "sql")[0], 0)
+        code, err = self.run_cli("check")
+        self.assertEqual(code, 1)
+        self.assertIn("src/a.py has 3, baseline 2", err)
+        data = json.loads(Path(".agents/audit-baseline.json").read_text())
+        self.assertEqual((data["languages"], data["comments"]["src/q.sql"]), (["py", "sql"], 2))
+
+    def test_explain_lists_each_counted_line(self):
+        self.assertEqual(self.run_cli("init", "--roots", "src")[0], 0)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(ar.main(["report", "--explain", "src/a.py"]), 0)
+        self.assertEqual(out.getvalue().splitlines(), ["src/a.py:1: # one", "src/a.py:2: # two"])
 
     def test_check_without_a_baseline_fails_clearly(self):
         code, err = self.run_cli("check")
