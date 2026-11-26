@@ -7,15 +7,18 @@
           {
             "type": "command",
             "command": "bash $HOME/.claude/hooks/block-dangerous.sh",
+            "onFailure": "block",
             "statusMessage": "Checking command safety..."
           },
           {
             "type": "command",
-            "command": "bash $HOME/.claude/hooks/confirm-external-impact.sh"
+            "command": "bash $HOME/.claude/hooks/confirm-external-impact.sh",
+            "onFailure": "block"
           },
           {
             "type": "command",
-            "command": "bash $HOME/.claude/hooks/guard-readonly-postgres.sh"
+            "command": "bash $HOME/.claude/hooks/guard-readonly-postgres.sh",
+            "onFailure": "block"
           }
         ]
       },

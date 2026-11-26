@@ -99,8 +99,11 @@ Set the environment variables in the shell that starts Claude Code or in the
 `env` block of `settings.json`.
 
 The scripts do not inspect psql startup files, called SQL functions or later
-connections made by a script. Use database roles to enforce access. Missing
-hook registration, hook timeouts or runner errors may also bypass feedback.
+connections made by a script. Use database roles to enforce access. The
+installer registers the three Bash hooks with `"onFailure": "block"`, so a
+hook that times out or cannot start refuses the command instead of letting it
+run; this matters most in Code Mode, where one script makes many calls. A
+missing registration still bypasses them.
 The `ask` response is Claude-specific; Codex does not support it. Do not copy
 these registrations into another harness as an equivalent policy.
 
@@ -112,9 +115,9 @@ Example `~/.claude/settings.json` entries:
     "PreToolUse": [{
       "matcher": "Bash",
       "hooks": [
-        {"type": "command", "command": "bash ~/.claude/hooks/block-dangerous.sh"},
-        {"type": "command", "command": "bash ~/.claude/hooks/confirm-external-impact.sh"},
-        {"type": "command", "command": "bash ~/.claude/hooks/guard-readonly-postgres.sh"}
+        {"type": "command", "command": "bash ~/.claude/hooks/block-dangerous.sh", "onFailure": "block"},
+        {"type": "command", "command": "bash ~/.claude/hooks/confirm-external-impact.sh", "onFailure": "block"},
+        {"type": "command", "command": "bash ~/.claude/hooks/guard-readonly-postgres.sh", "onFailure": "block"}
       ]
     }],
     "PostToolUse": [{

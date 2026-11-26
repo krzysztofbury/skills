@@ -21,7 +21,8 @@ export function mergeHooks(current, template) {
         }
         if (found) {
           if (found.type !== hook.type) throw new Error('Conflicting hook type');
-          // Keep existing timeout/status choices; never replace unrelated settings.
+          // Keep existing timeout/status/onFailure choices; only fill in a missing onFailure.
+          if (hook.onFailure && found.onFailure === undefined) found.onFailure = hook.onFailure;
           continue;
         }
         const destination = matching[0];
