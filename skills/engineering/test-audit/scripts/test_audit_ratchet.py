@@ -174,6 +174,15 @@ class Cli(unittest.TestCase):
         data = json.loads(Path(".agents/audit-baseline.json").read_text())
         self.assertEqual((data["languages"], data["comments"]["src/q.sql"]), (["py", "sql"], 2))
 
+    def test_vendored_and_generated_files_are_not_counted(self):
+        (self.root / "src" / "vendor").mkdir()
+        self.write("src/vendor/lib.py", "# library\n# comments\n")
+        self.write("src/gen.py", "# generated\n")
+        self.write(".gitattributes", "src/vendor/** linguist-vendored\nsrc/gen.py linguist-generated=true\n")
+        self.assertEqual(self.run_cli("init", "--roots", "src")[0], 0)
+        data = json.loads(Path(".agents/audit-baseline.json").read_text())
+        self.assertEqual(data["comments"], {"src/a.py": 2})
+
     def test_explain_lists_each_counted_line(self):
         self.assertEqual(self.run_cli("init", "--roots", "src")[0], 0)
         out = io.StringIO()

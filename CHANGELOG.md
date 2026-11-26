@@ -5,6 +5,17 @@ to `main` is released as a new [semantic version](https://semver.org/); the
 section for that version becomes the GitHub release notes. See
 [RELEASE.md](RELEASE.md).
 
+## [4.12.0] - 2026-11-26
+
+### Added
+
+- `test-audit`'s ratchet skips files `.gitattributes` marks
+  `linguist-vendored` or `linguist-generated`, so vendored libraries and
+  generated code never count, and upgrading a library cannot fail the check.
+- The ratchet script type-checks clean under basedpyright's strict mode as
+  well as strict mypy, so it drops into projects that check `scripts/` with
+  either.
+
 ## [4.11.0] - 2026-11-26
 
 ### Added
