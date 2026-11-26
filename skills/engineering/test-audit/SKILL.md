@@ -36,7 +36,10 @@ Answer three questions for each test, in order; the first "no" decides.
    a contract when someone outside the code would notice the change: a
    user, a caller that checks the value, a bill, a security or data
    guarantee, an exact limit that a spec or another service sets. That is a
-   Business Test, however small.
+   Business Test, however small. Answer from the code before weighing
+   consequences: every guard protects something, so naming what it protects
+   ("would let a request run unbounded") does not make a plain range check
+   or closed-object refusal a Business Test.
 3. **Is the asserted outcome produced by the real code path?** No:
    **Failsafe**. It reassures the owner or an agent that the work runs
    without checking the result: no assertion or only "no exception", a mock
@@ -52,6 +55,25 @@ naming the wrong change it catches or why none exists. When two categories
 fit, or you cannot name the contract, mark it **uncertain**, keep it, and put
 it on the owner's list: a wrong keep costs one more look, a wrong delete
 loses proof.
+
+## Labelling at scale
+
+When the tests do not fit one context, label them in batches, the raw
+source kept out of every labeller's context:
+
+1. `python <this skill>/scripts/audit_inventory.py tests --roots <test roots>
+   --out <scratch dir>` writes batches of 40 tests, each with its source
+   and the project helpers it imports.
+2. Start one labeller subagent per batch on Sonnet at `medium` effort (add
+   the `REPL` tool in Code Mode), at most the parallel cap at once. Give it
+   the section above, [test proof](references/test-proof.md) and its batch
+   file, nothing else; it returns one record line per test.
+3. Before acting, read every non-Business label against the code; the
+   labels are yours to own.
+
+Why Sonnet: on 40 held-out tests from three audited repositories it agreed
+with Opus's labels on 36 and marked none Opus kept, at about 2k tokens per
+label.
 
 ## Act on each category
 
