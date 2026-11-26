@@ -83,8 +83,9 @@ OpenCode, and similar). `scripts/install.sh` generates `CLAUDE.md` /
 - Name the model and effort on every subagent call. Opus for planning,
   judgment and orchestration; Sonnet at low or medium effort for mechanical
   or bulk work such as labelling, extraction and sweeps.
-- Run at most 3 at once, and size each batch so an agent stays under about
-  100k tokens of context.
+- Run at most the parallel cap at once: the number the personal rules set
+  for the current plan, or 3 without one. Size each batch so an agent stays
+  under about 100k tokens of context.
 
 ## Scratch Space & Cleanup
 
