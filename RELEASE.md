@@ -55,7 +55,9 @@ blocks a release, but the changelog is then out of step and needs a follow-up.
 
 1. Runs only after the `CI` workflow succeeds for a push to `main`.
 2. Skips the commit if it already carries a `v*` release tag, so a re-run never
-   releases twice.
+   releases twice, or if it is no longer `main`'s head. Pull requests merged
+   back to back then make one release, for the last commit, which contains
+   them all; its notes come from that last pull request.
 3. Finds the merged pull request for the commit and reads its labels. A
    commit pushed directly to `main` without a pull request is a patch.
 4. Computes the version with `scripts/next-version.sh` from the highest
