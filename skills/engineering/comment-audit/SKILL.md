@@ -25,7 +25,9 @@ Out of scope, never counted or touched:
 - script metadata a tool reads (a PEP 723 `# /// script` block);
 - docstrings and any text a program reads at runtime, such as tool or CLI
   descriptions, help text and schema descriptions;
-- license headers and generated files.
+- license headers, and vendored or generated files (mark them
+  `linguist-vendored` or `linguist-generated` in `.gitattributes` so the
+  ratchet skips them too).
 
 ## Categorise every comment
 

@@ -9,8 +9,9 @@ Counts, per tracked file under the configured roots:
   with Pygments, so their comments inside strings are never counted;
 - to_delete: `pytest.mark.to_delete(issue=N)` markers in Python files.
 
-Both counts may only fall. The baseline is a JSON file committed to the
-repository; a file missing from it has a baseline of zero.
+Files `.gitattributes` marks `linguist-vendored` or `linguist-generated` are
+not counted. Both counts may only fall. The baseline is a JSON file committed
+to the repository; a file missing from it has a baseline of zero.
 
   audit_ratchet.py init --roots src tests [--languages py sql js html]
                                 write the first baseline (default: py)
@@ -231,7 +232,36 @@ def tracked_files(roots: list[str], languages: list[str]) -> list[str]:
             for p in Path(r).rglob("*")
             if str(p).lower().endswith(wanted)
         ]
-    return sorted(f for f in files if Path(f).is_file())
+    files = [f for f in files if Path(f).is_file()]
+    return sorted(set(files) - vendored(files))
+
+
+def vendored(files: list[str]) -> set[str]:
+    """Files `.gitattributes` marks `linguist-vendored` or `linguist-generated`."""
+    if not files:
+        return set()
+    try:
+        out = subprocess.run(
+            [
+                "git",
+                "check-attr",
+                "-z",
+                "--stdin",
+                "linguist-vendored",
+                "linguist-generated",
+            ],
+            input="\0".join(files).encode(),
+            capture_output=True,
+            check=True,
+        ).stdout.decode()
+    except (OSError, subprocess.CalledProcessError):
+        return set()
+    fields = out.split("\0")
+    return {
+        fields[i]
+        for i in range(0, len(fields) - 2, 3)
+        if fields[i + 2] not in ("unspecified", "unset", "false")
+    }
 
 
 def measure(roots: list[str], languages: list[str]) -> Counts:

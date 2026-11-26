@@ -94,6 +94,9 @@ committed baseline; both counts may only fall.
    (`--languages py sql js ts css html sh yaml toml`, or later
    `extend --languages ...`); they are read with Pygments, which must be in
    the project's locked dev dependencies (pytest already brings it).
+   Mark third-party and generated files in `.gitattributes`
+   (`static/vendor/** linguist-vendored`, `linguist-generated`); the ratchet
+   skips them, as GitHub's language statistics do.
 3. Run `check` where the project already runs its checks: as a local
    pre-commit hook when CI runs pre-commit, otherwise as a CI step next to the
    tests. It fails when a count rises, or falls without the baseline lowered;
