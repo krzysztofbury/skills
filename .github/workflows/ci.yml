@@ -37,6 +37,7 @@ jobs:
       - run: node --test tests/*.test.mjs integrations/opendeck/dev.krzysztof.agents.sdPlugin/test/*.test.js
       - run: bash skills/agent-ops/council/scripts/council_test.sh
       - run: bash skills/agent-ops/retro/scripts/ledger_test.sh
+      - run: pip install pygments==2.21.0
       - run: python3 skills/engineering/test-audit/scripts/test_audit_ratchet.py
       - run: shellcheck hooks/claude/*.sh integrations/claude/*.sh scripts/*.sh
       - name: Test Claude guards
