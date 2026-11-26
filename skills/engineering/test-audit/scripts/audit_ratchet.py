@@ -118,8 +118,8 @@ def python_comments(source: str) -> Iterator[tuple[int, str]]:
 def lexed_comments(source: str, lexer_name: str) -> Iterator[tuple[int, str]]:
     """(line, text) of each counted comment line, read with Pygments."""
     try:
-        from pygments.lexers import get_lexer_by_name
-        from pygments.token import Comment
+        from pygments.lexers import get_lexer_by_name  # type: ignore[import-untyped, unused-ignore]
+        from pygments.token import Comment  # type: ignore[import-untyped, unused-ignore]
     except ImportError:
         raise RatchetError(
             "Pygments is needed to count comments outside Python; add it to the "
@@ -160,7 +160,9 @@ def comments(path: str, source: str) -> Iterator[tuple[int, str]]:
             if not lexer_name:
                 return python_comments(source)
             return lexed_comments(source, lexer_name)
-    raise RatchetError(f"{path}: no comment rules for {suffix or 'files without a suffix'}")
+    raise RatchetError(
+        f"{path}: no comment rules for {suffix or 'files without a suffix'}"
+    )
 
 
 def count_comments(source: str, path: str = "x.py") -> int:
@@ -191,7 +193,9 @@ def count_to_delete(source: str, path: str) -> int:
                 and not isinstance(issue.value, bool)
                 and issue.value > 0
             ):
-                raise RatchetError(f"{path}:{node.lineno}: to_delete needs issue=<issue number>")
+                raise RatchetError(
+                    f"{path}:{node.lineno}: to_delete needs issue=<issue number>"
+                )
             total += 1
     for node in ast.walk(tree):
         if (
@@ -200,7 +204,9 @@ def count_to_delete(source: str, path: str) -> int:
             and dotted(node).endswith("mark.to_delete")
             and id(node) not in calls
         ):
-            raise RatchetError(f"{path}:{node.lineno}: to_delete needs issue=<issue number>")
+            raise RatchetError(
+                f"{path}:{node.lineno}: to_delete needs issue=<issue number>"
+            )
     return total
 
 
@@ -219,7 +225,12 @@ def tracked_files(roots: list[str], languages: list[str]) -> list[str]:
         ).stdout.decode()
         files = [f for f in out.split("\0") if f.lower().endswith(wanted)]
     except (OSError, subprocess.CalledProcessError):
-        files = [str(p) for r in roots for p in Path(r).rglob("*") if str(p).lower().endswith(wanted)]
+        files = [
+            str(p)
+            for r in roots
+            for p in Path(r).rglob("*")
+            if str(p).lower().endswith(wanted)
+        ]
     return sorted(f for f in files if Path(f).is_file())
 
 
@@ -243,7 +254,9 @@ def load(path: str) -> dict[str, Any]:
     except FileNotFoundError:
         raise RatchetError(f"no baseline at {path}; run init first") from None
     if data.get("version") not in (1, VERSION) or not data.get("roots"):
-        raise RatchetError(f"{path}: unsupported baseline (version 1 or {VERSION} with roots)")
+        raise RatchetError(
+            f"{path}: unsupported baseline (version 1 or {VERSION} with roots)"
+        )
     data.setdefault("languages", ["py"])
     extensions(data["languages"])
     return data
@@ -281,7 +294,9 @@ def totals(counts: Counts) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("command", choices=("init", "extend", "check", "update", "report"))
+    parser.add_argument(
+        "command", choices=("init", "extend", "check", "update", "report")
+    )
     parser.add_argument("--baseline", default=DEFAULT_BASELINE)
     parser.add_argument("--roots", nargs="+")
     parser.add_argument("--languages", nargs="+")
@@ -307,7 +322,9 @@ def main(argv: list[str] | None = None) -> int:
             new = measure(roots, added)
             for kind in KINDS:
                 baseline.setdefault(kind, {}).update(new[kind])
-            save(args.baseline, roots, languages + added, {k: baseline[k] for k in KINDS})
+            save(
+                args.baseline, roots, languages + added, {k: baseline[k] for k in KINDS}
+            )
             print(f"added {', '.join(added)} to {args.baseline}: {totals(new)}")
             return 0
         if args.command == "report" and args.explain:
@@ -320,7 +337,9 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "report":
             for kind in KINDS:
                 top = sorted(counts[kind].items(), key=lambda kv: -kv[1])[:10]
-                print(f"{kind}: {sum(counts[kind].values())} in {len(counts[kind])} files")
+                print(
+                    f"{kind}: {sum(counts[kind].values())} in {len(counts[kind])} files"
+                )
                 for path, n in top:
                     print(f"  {n:5d}  {path}")
             return 0
@@ -329,8 +348,8 @@ def main(argv: list[str] | None = None) -> int:
             for line in up:
                 print(f"  {line}", file=sys.stderr)
             print(
-                "Remove the new comment or marker (`report --explain PATH` lists what "
-                "counts). A one-line `Why: ...` comment and tool pragmas are not counted.",
+                "Remove the new comment or marker; `report --explain PATH` lists "
+                "what counts. One-line `Why: ...` comments and pragmas do not count.",
                 file=sys.stderr,
             )
             return 1
