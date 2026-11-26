@@ -27,6 +27,19 @@ test('Claude merges missing confirmations while preserving model, effort, other 
   assert.deepEqual(mergeHooks(merged, template), merged);
   assert.equal(current.hooks.PreToolUse[0].hooks.length, 1);
 });
+test('Claude fills in a missing onFailure but keeps one the user set', () => {
+  const blocking = { hooks: { PreToolUse: [{ matcher: 'Bash', hooks: [
+    { type: 'command', command: 'bash $HOME/.claude/hooks/block-dangerous.sh', onFailure: 'block' },
+    { type: 'command', command: 'bash $HOME/.claude/hooks/confirm-external-impact.sh', onFailure: 'block' },
+  ] }] } };
+  const current = { hooks: { PreToolUse: [{ matcher: 'Bash', hooks: [
+    { type: 'command', command: 'bash $HOME/.claude/hooks/block-dangerous.sh' },
+    { type: 'command', command: 'bash $HOME/.claude/hooks/confirm-external-impact.sh', onFailure: 'continue' },
+  ] }] } };
+  const [dangerous, external] = mergeHooks(current, blocking).hooks.PreToolUse[0].hooks;
+  assert.equal(dangerous.onFailure, 'block');
+  assert.equal(external.onFailure, 'continue');
+});
 test('Claude rejects malformed settings instead of replacing them', () => {
   for (const value of [null, [], { hooks: [] }, { hooks: { PreToolUse: {} } }]) {
     assert.throws(() => mergeHooks(value, template));
